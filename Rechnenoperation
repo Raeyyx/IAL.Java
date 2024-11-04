@@ -1,0 +1,26 @@
+package rechenoperation;
+
+/*
+ * Implementieren Sie ein Programm, dass eine Division der doubles a und b durchführt.
+ * Falls a größer als b ist, soll zusätzlich ein "%" in der Konsole ausgegeben werden.
+ * Falls beide Werte gleich sind, soll stattdessen das Produkt der Zahlen gebildet werden.
+ */
+
+public class RechenOperationen {
+
+    public static void main(String[] args) {
+        double a = 10.2;
+        double b = 2.5;
+
+        if (a == b) {
+            double product = a * b;
+            System.out.println("Die Werte sind gleich. Produkt: " + product);
+        } else if (a > b) {
+            double division = a / b;
+            System.out.println("Division: " + division + " %");
+        } else {
+            double division = a / b;
+            System.out.println("Division: " + division);
+        }
+    }
+}
