@@ -1,0 +1,42 @@
+package kfz;
+/*Erstellen Sie eine Klasse zur Altersüberprüfung, die folgendes Verhalten ausgibt:
+
+<14 - "Du darfst noch nicht Mofa fahren"
+
+<16, >=14 - "Du darfst Mofa fahren, aber nicht Moped"
+
+<18, >=16 - "Du darfst Moped fahren, aber nicht Auto"
+
+>=18 - "Du darfst endlich Auto fahren!"
+ */
+public class Fahrerlaubnis {
+
+    public static void main(String[] args) {
+        int age = 16;
+        String output;
+
+        if (age < 14) {
+            output = "Du darfst noch nicht Mofa fahren";
+        } else if (age < 16) {
+            output = "Du darfst Mofa fahren, aber nicht Moped";
+        } else if (age < 18) {
+            output = "Du darfst Moped fahren, aber nicht Auto";
+        } else {
+            output = "Du darfst endlich Auto fahren!";
+        }
+
+        System.out.println(output);
+    }
+
+
+
+        
+        
+	
+			
+	
+		
+	}	
+	    
+
+
