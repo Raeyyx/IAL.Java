@@ -1,0 +1,27 @@
+package kfz;
+
+import java.util.Scanner;
+
+public class FahrerlaubnisScanner {
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Bitte gib dein Alter ein: ");
+        
+        int age = scanner.nextInt();
+        String output;
+
+        if (age < 14) {
+            output = "Du darfst noch nicht Mofa fahren";
+        } else if (age < 16) {
+            output = "Du darfst Mofa fahren, aber nicht Moped";
+        } else if (age < 18) {
+            output = "Du darfst Moped fahren, aber nicht Auto";
+        } else {
+            output = "Du darfst endlich Auto fahren!";
+        }
+
+        System.out.println(output);
+        scanner.close();
+    }
+}
