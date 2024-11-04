@@ -11,7 +11,7 @@ public class Class_i {
     }
     
     public static int findMax(int a, int b, int c) {
-        int max = a; // Ausgangswert
+        int max = a;
         if (b > max) {
             max = b;
         }
