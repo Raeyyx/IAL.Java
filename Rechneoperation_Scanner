@@ -1,0 +1,43 @@
+package rechenoperation;
+
+import java.util.Scanner;
+
+public class Rechenoperation2 {
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+
+        double[][] testCases = {
+            {10.2, 2.5},  
+            {5.0, 5.0},  
+            {2.5, 10.2},
+            {0.0, 0.0},
+            {-5.0, -5.0},
+            {3.5, 3.5}
+        };
+
+        for (double[] testCase : testCases) {
+            double a = testCase[0];
+            double b = testCase[1];
+
+            System.out.printf("Test mit a = %.2f und b = %.2f:\n", a, b);
+            
+
+            if (a == b) {
+                double product = a * b;
+                System.out.println("Die Werte sind gleich. Produkt: " + product);
+            } else if (b > a) {
+                double division = a / b;
+                System.out.println("Division: " + division + " %");
+            } else {
+                double division = a / b;
+                System.out.println("Division: " + division);
+            }
+
+            System.out.println();
+        }
+
+        scanner.close();
+    }
+}
