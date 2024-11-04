@@ -1,0 +1,35 @@
+package jahreszeitentemperatur;
+
+public class Jahreszeitentemperatur {
+    
+    public static void main(String[] args) {
+        int month = 4;
+        double temperature = 18;
+        
+        checkTemperature(month, temperature);
+    }
+    
+    public static void checkTemperature(int month, double temperature) {
+        String season = "";
+        String temperatureFeeling = "";
+        
+        if (month >= 3 && month <= 5) {
+            season = "Frühling";
+            temperatureFeeling = (temperature >= 20) ? "warm" : "kalt";
+        } else if (month >= 6 && month <= 8) {
+            season = "Sommer";
+            temperatureFeeling = (temperature >= 25) ? "warm" : "kalt";
+        } else if (month >= 9 && month <= 11) {
+            season = "Herbst";
+            temperatureFeeling = (temperature >= 15) ? "warm" : "kalt";
+        } else if (month == 12 || month == 1 || month == 2) {
+            season = "Winter";
+            temperatureFeeling = (temperature >= 5) ? "warm" : "kalt";
+        } else {
+            System.out.println("Ungültiger Monat.");
+            return;
+        }
+        
+        System.out.println("Der Monat " + month + " ist mit " + temperature + "°C für diese " + season + " relativ " + temperatureFeeling + ".");
+    }
+}
