@@ -1,0 +1,362 @@
+package rpg;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Random;
+import java.util.Scanner;
+
+public class GameTest1 {
+    
+    // Spielerattribute
+    private String playerName;
+    private int playerHealth = 100;
+    private int playerStrength = 15;
+    private int playerGold = 0;
+    private int playerReputation = 0;
+    private int playerMana = 50;
+    private int playerLevel = 1;
+    private int playerExperience = 0;
+    private ArrayList<Item> inventory = new ArrayList<>();
+    private ArrayList<Quest> activeQuests = new ArrayList<>();
+    private HashMap<String, Integer> craftingMaterials = new HashMap<>();
+    
+    // Gegnerattribute
+    private String enemyName;
+    private int enemyHealth;
+    private int enemyStrength;
+    private int enemyMagicResist;
+    private int enemyLevel;
+
+    // Spielvariablen
+    private boolean isGameRunning = true;
+    private Random random = new Random();
+    private Scanner scanner = new Scanner(System.in);
+
+    // Konstruktor
+    public GameTest1(String name) {
+        this.playerName = name;
+        initializeInventory();
+        System.out.println("Willkommen im Abenteuer, " + playerName + "!");
+        System.out.println("Du bist ein mutiger Held, der sein Königreich beschützen muss.");
+        addQuest("Rette das Dorf, indem du den Goblinhäuptling besiegst.", 50, "Goblinhäuptling", 1, 5);
+        addQuest("Finde die magische Blume im verzauberten Wald.", 100, "Magische Blume", 1, 10);
+        initializeCraftingMaterials();
+    }
+
+    // Initialisiert das Inventar des Spielers mit Basisgegenständen
+    private void initializeInventory() {
+        inventory.add(new Item("Schwert", 10));
+        inventory.add(new Item("Heiltrank", 20));
+        inventory.add(new Item("Magischer Stab", 15));
+        inventory.add(new Item("Schutzamulett", 5));
+    }
+
+    // Initialisiert die Crafting-Materialien
+    private void initializeCraftingMaterials() {
+        craftingMaterials.put("Eisen", 0);
+        craftingMaterials.put("Kräuter", 0);
+        craftingMaterials.put("Zauberstaub", 0);
+    }
+
+    // Zeigt das Inventar des Spielers an
+    private void showInventory() {
+        System.out.println("=== Inventar ===");
+        for (Item item : inventory) {
+            System.out.println("- " + item.getName() + " (Power: " + item.getPower() + ")");
+        }
+    }
+
+    // Zeigt die Crafting-Materialien an
+    private void showCraftingMaterials() {
+        System.out.println("=== Crafting Materialien ===");
+        for (String material : craftingMaterials.keySet()) {
+            System.out.println("- " + material + ": " + craftingMaterials.get(material));
+        }
+    }
+
+    // Startet einen Kampf
+    private void startCombat() {
+        spawnEnemy();
+        System.out.println("Ein " + enemyName + " Level " + enemyLevel + " erscheint!");
+
+        while (playerHealth > 0 && enemyHealth > 0) {
+            System.out.println("\nDeine Gesundheit: " + playerHealth + " | Mana: " + playerMana);
+            System.out.println(enemyName + " Gesundheit: " + enemyHealth);
+            System.out.println("Was möchtest du tun? (1) Angreifen (2) Zauber einsetzen (3) Fähigkeit (4) Inventar (5) Fliehen");
+
+            int choice = scanner.nextInt();
+
+            switch (choice) {
+                case 1:
+                    attack();
+                    break;
+                case 2:
+                    castSpell();
+                    break;
+                case 3:
+                    useSpecialSkill();
+                    break;
+                case 4:
+                    showInventory();
+                    break;
+                case 5:
+                    System.out.println("Du fliehst aus dem Kampf!");
+                    return;
+                default:
+                    System.out.println("Ungültige Auswahl. Versuch es nochmal.");
+                    break;
+            }
+        }
+
+        if (playerHealth > 0) {
+            System.out.println("Du hast den " + enemyName + " besiegt!");
+            playerGold += 10 * enemyLevel;
+            playerReputation += 5;
+            gainExperience(enemyLevel * 20);
+            checkQuestCompletion();
+            lootEnemy();
+        } else {
+            System.out.println("Du wurdest besiegt.");
+            isGameRunning = false;
+        }
+    }
+
+    // Führt einen Angriff aus
+    private void attack() {
+        int playerDamage = random.nextInt(playerStrength) + (playerLevel * 2);
+        System.out.println("Du greifst an und verursachst " + playerDamage + " Schaden!");
+        enemyHealth -= playerDamage;
+
+        if (enemyHealth > 0) {
+            int enemyDamage = random.nextInt(enemyStrength) + enemyLevel;
+            System.out.println(enemyName + " greift an und verursacht " + enemyDamage + " Schaden!");
+            playerHealth -= enemyDamage;
+        }
+    }
+
+    // Wirkt einen Zauber
+    private void castSpell() {
+        if (playerMana < 15) {
+            System.out.println("Nicht genug Mana!");
+            return;
+        }
+        playerMana -= 15;
+        int spellDamage = 20 + random.nextInt(20);
+        spellDamage -= enemyMagicResist;
+        System.out.println("Du wirkst einen Zauber und verursachst " + spellDamage + " magischen Schaden!");
+        enemyHealth -= spellDamage;
+    }
+
+    // Verwendet eine spezielle Fähigkeit
+    private void useSpecialSkill() {
+        if (playerLevel < 3) {
+            System.out.println("Du hast noch keine speziellen Fähigkeiten. Steige im Level auf!");
+            return;
+        }
+        int skillDamage = 40 + random.nextInt(30);
+        System.out.println("Du verwendest eine spezielle Fähigkeit und verursachst " + skillDamage + " Schaden!");
+        enemyHealth -= skillDamage;
+    }
+
+    // Erzeugt einen Gegner basierend auf dem Level des Spielers
+    private void spawnEnemy() {
+        String[] enemyTypes = {"Goblin", "Ork", "Dämon", "Bandit", "Dunkler Magier"};
+        enemyName = enemyTypes[random.nextInt(enemyTypes.length)];
+        enemyLevel = playerLevel + random.nextInt(2);
+        enemyHealth = 50 + enemyLevel * 10;
+        enemyStrength = 5 + enemyLevel * 2;
+        enemyMagicResist = random.nextInt(10) + enemyLevel;
+    }
+
+    // Lootet den Gegner
+    private void lootEnemy() {
+        int loot = random.nextInt(3);
+        if (loot == 0) {
+            craftingMaterials.put("Eisen", craftingMaterials.get("Eisen") + 2);
+            System.out.println("Du findest 2 Eisen!");
+        } else if (loot == 1) {
+            craftingMaterials.put("Kräuter", craftingMaterials.get("Kräuter") + 3);
+            System.out.println("Du findest 3 Kräuter!");
+        } else {
+            craftingMaterials.put("Zauberstaub", craftingMaterials.get("Zauberstaub") + 1);
+            System.out.println("Du findest 1 Zauberstaub!");
+        }
+    }
+
+    // Fügt eine Quest hinzu
+    private void addQuest(String description, int reward, String targetType, int targetAmount, int reputationImpact) {
+        activeQuests.add(new Quest(description, reward, targetType, targetAmount, reputationImpact));
+    }
+
+    // Überprüft, ob eine Quest abgeschlossen wurde
+    private void checkQuestCompletion() {
+        for (Quest quest : activeQuests) {
+            if (quest.isCompleted(enemyName)) {
+                quest.completeQuest(this);
+                System.out.println("Quest abgeschlossen: " + quest.getDescription());
+            }
+        }
+    }
+
+    // Gewinnt Erfahrung
+    private void gainExperience(int amount) {
+        playerExperience += amount;
+        System.out.println("Du hast " + amount + " Erfahrung gewonnen!");
+        checkLevelUp();
+    }
+
+    // Überprüft, ob der Spieler aufsteigt
+    private void checkLevelUp() {
+        if (playerExperience >= playerLevel * 100) {
+            playerLevel++;
+            playerHealth += 20; // Erhöht die Gesundheit bei jedem Level-Up
+            playerStrength += 5; // Erhöht die Stärke bei jedem Level-Up
+            System.out.println("Du bist Level " + playerLevel + " geworden! Deine Gesundheit und Stärke wurden erhöht.");
+        }
+    }
+
+    // Crafting-Methode
+    private void craftItem() {
+        System.out.println("Was möchtest du craften? (1) Schwert (2) Heiltrank (3) Magischer Stab");
+        int choice = scanner.nextInt();
+
+        switch (choice) {
+            case 1:
+                if (craftingMaterials.get("Eisen") >= 2) {
+                    craftingMaterials.put("Eisen", craftingMaterials.get("Eisen") - 2);
+                    inventory.add(new Item("Schwert", 10));
+                    System.out.println("Du hast ein Schwert gecraftet!");
+                } else {
+                    System.out.println("Nicht genug Eisen!");
+                }
+                break;
+            case 2:
+                if (craftingMaterials.get("Kräuter") >= 1) {
+                    craftingMaterials.put("Kräuter", craftingMaterials.get("Kräuter") - 1);
+                    inventory.add(new Item("Heiltrank", 30));
+                    System.out.println("Du hast einen Heiltrank gecraftet!");
+                } else {
+                    System.out.println("Nicht genug Kräuter!");
+                }
+                break;
+            case 3:
+                if (craftingMaterials.get("Zauberstaub") >= 1) {
+                    craftingMaterials.put("Zauberstaub", craftingMaterials.get("Zauberstaub") - 1);
+                    inventory.add(new Item("Magischer Stab", 25));
+                    System.out.println("Du hast einen magischen Stab gecraftet!");
+                } else {
+                    System.out.println("Nicht genug Zauberstaub!");
+                }
+                break;
+            default:
+                System.out.println("Ungültige Auswahl!");
+                break;
+        }
+    }
+
+    // Hauptspielschleife
+    private void gameLoop() {
+        while (isGameRunning) {
+            System.out.println("\nWas möchtest du tun? (1) Kämpfen (2) Inventar (3) Craften (4) Quests beenden (5) Spiel beenden");
+            int choice = scanner.nextInt();
+
+            switch (choice) {
+                case 1:
+                    startCombat();
+                    break;
+                case 2:
+                    showInventory();
+                    break;
+                case 3:
+                    showCraftingMaterials();
+                    craftItem();
+                    break;
+                case 4:
+                    checkQuestCompletion();
+                    break;
+                case 5:
+                    isGameRunning = false;
+                    System.out.println("Danke fürs Spielen!");
+                    break;
+                default:
+                    System.out.println("Ungültige Auswahl. Versuch es nochmal.");
+                    break;
+            }
+        }
+    }
+
+    // Hauptmethode
+    public static void main(String[] args) {
+        System.out.println("Gib deinen Namen ein: ");
+        Scanner input = new Scanner(System.in);
+        String name = input.nextLine();
+        GameTest1 game = new GameTest1(name);
+        game.gameLoop();
+    }
+}
+
+// Die Item-Klasse
+class Item {
+    private String name;
+    private int power;
+
+    public Item(String name, int power) {
+        this.name = name;
+        this.power = power;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public int getPower() {
+        return power;
+    }
+}
+
+// Die Quest-Klasse
+class Quest {
+    private String description;
+    private int reward;
+    private String targetType;
+    private boolean completed;
+    private int targetAmount;
+    private int reputationImpact;
+
+    public Quest(String description, int reward, String targetType, int targetAmount, int reputationImpact) {
+        this.description = description;
+        this.reward = reward;
+        this.targetType = targetType;
+        this.completed = false;
+        this.targetAmount = targetAmount;
+        this.reputationImpact = reputationImpact;
+    }
+
+    public String getDescription() {
+        return description + " (Belohnung: " + reward + " Gold, Ruf: " + reputationImpact + ")";
+    }
+
+    public void completeQuest(GameTest1 player) {
+        this.completed = true;
+        player.playerGold += reward;
+        player.playerReputation += reputationImpact;
+    }
+
+    public boolean isCompleted(String enemyDefeated) {
+        if (enemyDefeated.equals(targetType) && !completed) {
+            completed = true;
+            return true;
+        }
+        return false;
+    }
+
+    // Getter für Belohnung
+    public int getReward() {
+        return reward;
+    }
+
+    // Getter für Ruf-Einfluss
+    public int getReputationImpact() {
+        return reputationImpact;
+    }
+}
