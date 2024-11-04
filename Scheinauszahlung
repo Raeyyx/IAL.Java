@@ -1,0 +1,31 @@
+package money;
+
+import java.util.Scanner;
+
+public class Scheinausgabe {
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        
+        System.out.print("Geben Sie den Geldbetrag ein: ");
+        int betrag = scanner.nextInt();
+        
+        int[] scheine = {500, 200, 100, 50, 10, 5};
+        int[] anzahlScheine = new int[scheine.length];
+        
+        int rest = betrag;
+
+        for (int i = 0; i < scheine.length; i++) {
+            anzahlScheine[i] = rest / scheine[i];
+            rest = rest % scheine[i];
+        }
+        
+        System.out.println("Ausgabe:");
+        for (int i = 0; i < scheine.length; i++) {
+            System.out.println(scheine[i] + "er-Scheine: " + anzahlScheine[i]);
+        }
+        System.out.println("Rest: " + rest);
+        
+        scanner.close();
+    }
+}
