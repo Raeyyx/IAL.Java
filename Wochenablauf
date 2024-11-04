@@ -1,0 +1,45 @@
+package we;
+
+import java.util.Scanner;
+
+public class Wochenablauf {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.println("Bitte geben Sie einen Wochentag ein (1 für Montag, 2 für Dienstag, 3 für Mittwoch, 4 für Donnerstag, 5 für Freitag, 6 für Samstag, 7 für Sonntag):");
+        int tag = scanner.nextInt();
+
+        switch (tag) {
+            case 1:
+                System.out.println("Montag: Einkaufen");
+                break;
+            case 2:
+                System.out.println("Dienstag: Fortbildung");
+                break;
+            case 3:
+                System.out.println("Mittwoch: Um Haushalt kümmern");
+                break;
+            case 4:
+                System.out.println("Donnerstag: Sport");
+                break;
+            case 5:
+                System.out.println("Freitag: Party");
+                break;
+            case 6:
+                System.out.println("Samstag: Um Haushalt kümmern");
+                break;
+            case 7:
+                System.out.println("Sonntag: Freunde treffen");
+                break;
+            default:
+                System.out.println("Ungültige Eingabe! Bitte eine Zahl von 1 bis 7 eingeben.");
+        }
+
+        if (tag != 1 && tag != 2 && tag != 4 && tag != 5 && tag != 7) {
+            System.out.println("An diesem Tag kümmern wir uns um den Haushalt.");
+        }
+
+        scanner.close();
+        
+    }
+}
