@@ -1,0 +1,306 @@
+package bank;
+
+import java.util.ArrayList;
+import java.util.Scanner;
+
+// Bank Application
+public class Banksystem {
+    public static void main(String[] args) {
+        Bank bank = new Bank();
+        bank.run();
+    }
+}
+
+// Bank Class
+class Bank {
+    private ArrayList<Customer> customers;
+    private Scanner scanner;
+
+    public Bank() {
+        customers = new ArrayList<>();
+        scanner = new Scanner(System.in);
+    }
+
+    public void run() {
+        System.out.println("Willkommen bei der Bank!");
+        boolean running = true;
+
+        while (running) {
+            System.out.println("\nBitte wählen Sie eine Option:");
+            System.out.println("1: Neues Konto erstellen");
+            System.out.println("2: Einzahlen");
+            System.out.println("3: Abheben");
+            System.out.println("4: Kontostand anzeigen");
+            System.out.println("5: Kundenliste anzeigen");
+            System.out.println("6: Letzte Transaktionen anzeigen");
+            System.out.println("7: Zinsen hinzufügen (nur für Sparkonten)");
+            System.out.println("8: Kontoart ändern");
+            System.out.println("9: Konto schließen");
+            System.out.println("0: Programm beenden");
+
+            int choice = scanner.nextInt();
+
+            switch (choice) {
+                case 1:
+                    createAccount();
+                    break;
+                case 2:
+                    deposit();
+                    break;
+                case 3:
+                    withdraw();
+                    break;
+                case 4:
+                    showBalance();
+                    break;
+                case 5:
+                    listCustomers();
+                    break;
+                case 6:
+                    showLastTransactions();
+                    break;
+                case 7:
+                    applyInterestToSavingsAccounts();
+                    break;
+                case 8:
+                    changeAccountType();
+                    break;
+                case 9:
+                    closeAccount();
+                    break;
+                case 0:
+                    running = false;
+                    System.out.println("Programm wird beendet. Auf Wiedersehen!");
+                    break;
+                default:
+                    System.out.println("Ungültige Option. Bitte erneut versuchen.");
+            }
+        }
+    }
+
+    private void createAccount() {
+        System.out.println("Erstellen Sie ein neues Konto");
+        System.out.print("Name: ");
+        String name = scanner.next();
+        System.out.print("Anfangseinlage: ");
+        double initialDeposit = scanner.nextDouble();
+
+        System.out.println("Kontotyp wählen: 1 für Girokonto, 2 für Sparkonto");
+        int typeChoice = scanner.nextInt();
+        Customer customer;
+
+        if (typeChoice == 1) {
+            customer = new Customer(name, initialDeposit, "Girokonto");
+        } else {
+            customer = new Customer(name, initialDeposit, "Sparkonto");
+        }
+
+        customers.add(customer);
+        System.out.println("Konto für " + name + " wurde erstellt.");
+    }
+
+    private void deposit() {
+        System.out.print("Kunden-ID zum Einzahlen eingeben: ");
+        int id = scanner.nextInt();
+        Customer customer = findCustomerById(id);
+
+        if (customer != null) {
+            System.out.print("Betrag zum Einzahlen: ");
+            double amount = scanner.nextDouble();
+            customer.deposit(amount);
+            System.out.println("Einzahlung erfolgreich. Neuer Kontostand: " + customer.getBalance());
+        } else {
+            System.out.println("Kunde nicht gefunden.");
+        }
+    }
+
+    private void withdraw() {
+        System.out.print("Kunden-ID zum Abheben eingeben: ");
+        int id = scanner.nextInt();
+        Customer customer = findCustomerById(id);
+
+        if (customer != null) {
+            System.out.print("Betrag zum Abheben: ");
+            double amount = scanner.nextDouble();
+            if (customer.withdraw(amount)) {
+                System.out.println("Abhebung erfolgreich. Neuer Kontostand: " + customer.getBalance());
+            } else {
+                System.out.println("Nicht genügend Guthaben.");
+            }
+        } else {
+            System.out.println("Kunde nicht gefunden.");
+        }
+    }
+
+    private void showBalance() {
+        System.out.print("Kunden-ID eingeben: ");
+        int id = scanner.nextInt();
+        Customer customer = findCustomerById(id);
+
+        if (customer != null) {
+            System.out.println("Kontostand von " + customer.getName() + ": " + customer.getBalance());
+        } else {
+            System.out.println("Kunde nicht gefunden.");
+        }
+    }
+
+    private void listCustomers() {
+        System.out.println("Kundenliste:");
+        if (customers.isEmpty()) {
+            System.out.println("Keine Kunden vorhanden.");
+        } else {
+            for (Customer customer : customers) {
+                System.out.println(customer);
+            }
+        }
+    }
+
+    private void showLastTransactions() {
+        System.out.print("Kunden-ID eingeben: ");
+        int id = scanner.nextInt();
+        Customer customer = findCustomerById(id);
+
+        if (customer != null) {
+            System.out.println("Letzte Transaktionen für " + customer.getName() + ":");
+            customer.printLastTransactions();
+        } else {
+            System.out.println("Kunde nicht gefunden.");
+        }
+    }
+
+    private void applyInterestToSavingsAccounts() {
+        System.out.println("Zinsen werden nur für Sparkonten hinzugefügt.");
+        for (Customer customer : customers) {
+            if (customer.getAccountType().equals("Sparkonto")) {
+                customer.applyInterest();
+                System.out.println("Zinsen für " + customer.getName() + " hinzugefügt. Neuer Kontostand: " + customer.getBalance());
+            }
+        }
+    }
+
+    private void changeAccountType() {
+        System.out.print("Kunden-ID zur Kontowechsel eingeben: ");
+        int id = scanner.nextInt();
+        Customer customer = findCustomerById(id);
+
+        if (customer != null) {
+            System.out.println("Aktuelle Kontoart: " + customer.getAccountType());
+            System.out.println("Neue Kontoart wählen: 1 für Girokonto, 2 für Sparkonto");
+            int newTypeChoice = scanner.nextInt();
+            if (newTypeChoice == 1) {
+                customer.setAccountType("Girokonto");
+            } else {
+                customer.setAccountType("Sparkonto");
+            }
+            System.out.println("Kontoart für " + customer.getName() + " wurde geändert.");
+        } else {
+            System.out.println("Kunde nicht gefunden.");
+        }
+    }
+
+    private void closeAccount() {
+        System.out.print("Kunden-ID zum Schließen eingeben: ");
+        int id = scanner.nextInt();
+        Customer customer = findCustomerById(id);
+
+        if (customer != null) {
+            customers.remove(customer);
+            System.out.println("Konto für " + customer.getName() + " wurde geschlossen.");
+        } else {
+            System.out.println("Kunde nicht gefunden.");
+        }
+    }
+
+    private Customer findCustomerById(int id) {
+        for (Customer customer : customers) {
+            if (customer.getId() == id) {
+                return customer;
+            }
+        }
+        return null;
+    }
+}
+
+// Customer Class
+class Customer {
+    private static int idCounter = 1;
+    private int id;
+    private String name;
+    private double balance;
+    private String accountType;
+    private ArrayList<String> transactionHistory;
+
+    public Customer(String name, double initialDeposit, String accountType) {
+        this.id = idCounter++;
+        this.name = name;
+        this.balance = initialDeposit;
+        this.accountType = accountType;
+        this.transactionHistory = new ArrayList<>();
+        transactionHistory.add("Konto erstellt mit Einlage: " + initialDeposit);
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public double getBalance() {
+        return balance;
+    }
+
+    public String getAccountType() {
+        return accountType;
+    }
+
+    public void setAccountType(String accountType) {
+        this.accountType = accountType;
+    }
+
+    public void deposit(double amount) {
+        if (amount > 0) {
+            balance += amount;
+            transactionHistory.add("Einzahlung: " + amount);
+        } else {
+            System.out.println("Ungültiger Betrag zum Einzahlen.");
+        }
+    }
+
+    public boolean withdraw(double amount) {
+        if (amount > 0 && balance >= amount) {
+            balance -= amount;
+            transactionHistory.add("Abhebung: " + amount);
+            return true;
+        } else {
+            System.out.println("Abhebung nicht möglich.");
+            return false;
+        }
+    }
+
+    public void printLastTransactions() {
+        int size = transactionHistory.size();
+        if (size == 0) {
+            System.out.println("Keine Transaktionen vorhanden.");
+            return;
+        }
+        for (int i = Math.max(0, size - 5); i < size; i++) {
+            System.out.println(transactionHistory.get(i));
+        }
+    }
+
+    public void applyInterest() {
+        if (accountType.equals("Sparkonto")) {
+            double interestRate = 0.02; // Beispielzinssatz von 2%
+            double interest = balance * interestRate;
+            balance += interest;
+            transactionHistory.add("Zinsen hinzugefügt: " + interest);
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "Kunden-ID: " + id + ", Name: " + name + ", Kontostand: " + balance + ", Kontoart: " + accountType;
+    }
+}
