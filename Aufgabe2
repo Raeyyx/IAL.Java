@@ -4,12 +4,18 @@ public class Aufgabe2 {
     public static void main(String[] args) {
         String str = "Dies ist ein Beispiel";
         String[] words = str.split(" ");
+        String result = "";
 
-        System.out.println("Wörter mit gerader Zeichenanzahl:");
         for (int i = 0; i < words.length; i++) {
             if (words[i].length() % 2 == 0) {
-                System.out.println(words[i]);
+                if (result.isEmpty()) {
+                    result = words[i];
+                } else {
+                    result = result + ", " + words[i];
+                }
             }
         }
+
+        System.out.println(result);
     }
 }
