@@ -1,0 +1,15 @@
+package base;
+
+public class Aufgabe3 {
+    public static void main(String[] args) {
+        String str = "00000000015704204";
+        int index = 0;
+
+        while (index < str.length() && str.charAt(index) == '0') {
+            index++;
+        }
+
+        String result = str.substring(index);
+        System.out.println("Ergebnis: " + result);
+    }
+}
