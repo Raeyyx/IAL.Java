@@ -1,0 +1,44 @@
+package base;
+
+import java.util.Scanner;
+
+public class Kassenausgabe {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.print("Geben Sie Ihren Vornamen ein: ");
+        String vorname = scanner.nextLine();
+        
+        System.out.print("Geben Sie Ihren Nachnamen ein: ");
+        String nachname = scanner.nextLine();
+        
+        System.out.print("Geben Sie Ihr Alter ein: ");
+        int alter = scanner.nextInt();
+        
+        System.out.println("Vorname: " + vorname);
+        System.out.println("Nachname: " + nachname);
+        System.out.println("Alter: " + alter);
+
+        System.out.print("Anzahl der Artikel: ");
+        int artikelAnzahl = scanner.nextInt();
+        
+        System.out.print("Preis pro Artikel: ");
+        double artikelPreis = scanner.nextDouble();
+        
+        System.out.print("Betrag vom Kunden gegeben: ");
+        double kundenBetrag = scanner.nextDouble();
+
+        double gesamtPreis = artikelAnzahl * artikelPreis;
+        double rueckgeld = kundenBetrag - gesamtPreis;
+
+        System.out.println("Gesamtpreis: " + gesamtPreis + "€");
+
+        if (rueckgeld < 0) {
+            System.out.println("Der Kunde hat zu wenig bezahlt. Fehlender Betrag: " + (-rueckgeld) + "€");
+        } else {
+            System.out.println("Rückgeld: " + rueckgeld + "€");
+        }
+
+        scanner.close();
+    }
+}
