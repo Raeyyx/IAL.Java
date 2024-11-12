@@ -690,3 +690,239 @@ class RPGGameAdditionalElements {
         }
     }
 }
+
+class RPGGameCoreElements {
+    class Player {
+        private String name;
+        private int health;
+        private int mana;
+        private int level;
+        private int experience;
+        private Inventory inventory;
+
+        public Player(String name, int health, int mana, int level) {
+            this.name = name;
+            this.health = health;
+            this.mana = mana;
+            this.level = level;
+            this.experience = 0;
+            this.inventory = new Inventory();
+        }
+
+        public void attack(Enemy enemy) {
+            int damage = level * 10 + (int)(Math.random() * 5); // Add some variability to damage
+            System.out.println(name + " attacks " + enemy.getName() + " for " + damage + " damage!");
+            enemy.takeDamage(damage);
+            if (enemy.getHealth() <= 0) {
+                gainExperience(enemy.getExperiencePoints());
+            }
+        }
+
+        public void heal(int amount) {
+            health += amount;
+            health = Math.min(health, getMaxHealth()); // Ensure health doesn't exceed max health
+            System.out.println(name + " heals for " + amount + " health points. Current health: " + health);
+        }
+
+        public void castSpell(Spell spell, Enemy enemy) {
+            if (mana >= spell.getManaCost()) {
+                mana -= spell.getManaCost();
+                System.out.println(name + " casts " + spell.getName() + " on " + enemy.getName() + " for " + spell.getDamage() + " damage!");
+                enemy.takeDamage(spell.getDamage());
+            } else {
+                System.out.println(name + " does not have enough mana to cast " + spell.getName() + ".");
+            }
+        }
+
+        public void gainExperience(int xp) {
+            experience += xp;
+            System.out.println(name + " gains " + xp + " experience points. Total experience: " + experience);
+            if (experience >= level * 100) { // Example leveling system
+                levelUp();
+            }
+        }
+
+        private void levelUp() {
+            level++;
+            experience = 0;
+            health = getMaxHealth();
+            mana += 10;
+            System.out.println(name + " has leveled up! New level: " + level + ". Health and mana restored.");
+        }
+
+        public int getMaxHealth() {
+            return 100 + (level * 20);
+        }
+
+        public int getHealth() {
+            return health;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public Inventory getInventory() {
+            return inventory;
+        }
+    }
+
+    class Enemy {
+        private String name;
+        private int health;
+        private int damage;
+        private int experiencePoints;
+
+        public Enemy(String name, int health, int damage, int experiencePoints) {
+            this.name = name;
+            this.health = health;
+            this.damage = damage;
+            this.experiencePoints = experiencePoints;
+        }
+
+        public void attack(Player player) {
+            int attackDamage = damage + (int)(Math.random() * 3); // Add some variability to damage
+            System.out.println(name + " attacks " + player.getName() + " for " + attackDamage + " damage!");
+            player.heal(-attackDamage);
+        }
+
+        public void takeDamage(int damage) {
+            health -= damage;
+            if (health <= 0) {
+                System.out.println(name + " has been defeated!");
+            } else {
+                System.out.println(name + " has " + health + " health remaining.");
+            }
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public int getHealth() {
+            return health;
+        }
+
+        public int getExperiencePoints() {
+            return experiencePoints;
+        }
+    }
+
+    class Inventory {
+        private List<Item> items;
+
+        public Inventory() {
+            this.items = new ArrayList<>();
+        }
+
+        public void addItem(Item item) {
+            items.add(item);
+            System.out.println(item.getName() + " added to inventory.");
+        }
+
+        public void useItem(String itemName, Player player) {
+            for (Item item : items) {
+                if (item.getName().equals(itemName)) {
+                    item.use(player);
+                    items.remove(item);
+                    return;
+                }
+            }
+            System.out.println("Item " + itemName + " not found in inventory.");
+        }
+
+        public void listItems() {
+            if (items.isEmpty()) {
+                System.out.println("Inventory is empty.");
+            } else {
+                System.out.println("Items in inventory:");
+                for (Item item : items) {
+                    System.out.println("- " + item.getName());
+                }
+            }
+        }
+    }
+
+    class Item {
+        private String name;
+        private String type;
+        private int value;
+
+        public Item(String name, String type, int value) {
+            this.name = name;
+            this.type = type;
+            this.value = value;
+        }
+
+        public void use(Player player) {
+            if (type.equals("healing")) {
+                player.heal(value);
+                System.out.println(name + " used, healing " + value + " health points.");
+            } else if (type.equals("mana")) {
+                player.mana += value;
+                System.out.println(name + " used, restoring " + value + " mana points.");
+            } else {
+                System.out.println(name + " used, but nothing happened.");
+            }
+        }
+
+        public String getName() {
+            return name;
+        }
+    }
+
+    class Spell {
+        private String name;
+        private int manaCost;
+        private int damage;
+
+        public Spell(String name, int manaCost, int damage) {
+            this.name = name;
+            this.manaCost = manaCost;
+            this.damage = damage;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public int getManaCost() {
+            return manaCost;
+        }
+
+        public int getDamage() {
+            return damage;
+        }
+
+        public void cast(Player player, Enemy enemy) {
+            if (player.mana >= manaCost) {
+                player.mana -= manaCost;
+                System.out.println(player.getName() + " casts " + name + " on " + enemy.getName() + " for " + damage + " damage!");
+                enemy.takeDamage(damage);
+            } else {
+                System.out.println(player.getName() + " does not have enough mana to cast " + name + ".");
+            }
+        }
+    }
+
+    class Mount {
+        private String name;
+        private int speed;
+        private boolean isSpecial;
+
+        public Mount(String name, int speed, boolean isSpecial) {
+            this.name = name;
+            this.speed = speed;
+            this.isSpecial = isSpecial;
+        }
+
+        public void ride(Player player) {
+            System.out.println(player.getName() + " is now riding " + name + " at a speed of " + speed + ".");
+        }
+
+        public void boostSpeed(int additionalSpeed) {
+            speed += additionalSpeed;
+            System.out.println(name + "'s speed has been boosted to " + speed + ".");
+        }
+    }
+}
