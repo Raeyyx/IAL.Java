@@ -503,91 +503,190 @@ class RPGGameAdditionalElements {
         private String name;
         private int defenseLevel;
         private List<Enemy> guards;
+        private int maxGuards;
 
-        public Castle(String name, int defenseLevel) {
+        public Castle(String name, int defenseLevel, int maxGuards) {
             this.name = name;
             this.defenseLevel = defenseLevel;
+            this.maxGuards = maxGuards;
             this.guards = new ArrayList<>();
         }
 
         public void addGuard(Enemy guard) {
-            guards.add(guard);
+            if (guards.size() < maxGuards) {
+                guards.add(guard);
+            } else {
+                System.out.println("Cannot add more guards, maximum capacity reached.");
+            }
         }
 
         public void defend(Player player) {
-            // Logic for defending the castle against a player attack
+            System.out.println("The castle " + name + " is being defended!");
+            for (Enemy guard : guards) {
+                guard.attack(player);
+            }
+            if (player.getHealth() <= 0) {
+                System.out.println(player.getName() + " has been defeated by the castle guards!");
+            }
+        }
+
+        public void upgradeDefense(int additionalDefense) {
+            defenseLevel += additionalDefense;
+            System.out.println("Castle defense level upgraded to: " + defenseLevel);
         }
     }
 
     class Campfire {
         private int healingAmount;
+        private int fuelLevel;
+        private int maxFuel;
 
-        public Campfire(int healingAmount) {
+        public Campfire(int healingAmount, int maxFuel) {
             this.healingAmount = healingAmount;
+            this.fuelLevel = maxFuel;
+            this.maxFuel = maxFuel;
         }
 
         public void rest(Player player) {
-            player.heal(healingAmount);
+            if (fuelLevel > 0) {
+                player.heal(healingAmount);
+                fuelLevel--;
+                System.out.println(player.getName() + " rested at the campfire and healed for " + healingAmount + " points. Remaining fuel: " + fuelLevel);
+            } else {
+                System.out.println("The campfire has no fuel left. Unable to rest.");
+            }
+        }
+
+        public void addFuel(int fuel) {
+            if (fuelLevel + fuel <= maxFuel) {
+                fuelLevel += fuel;
+                System.out.println("Campfire fuel level increased to: " + fuelLevel);
+            } else {
+                fuelLevel = maxFuel;
+                System.out.println("Campfire is now at maximum fuel level: " + maxFuel);
+            }
         }
     }
 
     class Arena {
         private String name;
         private List<Enemy> challengers;
+        private int audienceCapacity;
+        private int currentAudience;
 
-        public Arena(String name) {
+        public Arena(String name, int audienceCapacity) {
             this.name = name;
+            this.audienceCapacity = audienceCapacity;
+            this.currentAudience = 0;
             this.challengers = new ArrayList<>();
         }
 
         public void addChallenger(Enemy enemy) {
             challengers.add(enemy);
+            System.out.println(enemy.getName() + " has been added as a challenger in the arena " + name + ".");
         }
 
         public void startBattle(Player player) {
-            // Logic for starting a battle in the arena
+            System.out.println(player.getName() + " has entered the arena " + name + "!");
+            for (Enemy challenger : challengers) {
+                while (challenger.getHealth() > 0 && player.getHealth() > 0) {
+                    player.attack(challenger);
+                    if (challenger.getHealth() > 0) {
+                        challenger.attack(player);
+                    }
+                }
+                if (player.getHealth() <= 0) {
+                    System.out.println(player.getName() + " has been defeated by " + challenger.getName() + "!");
+                    return;
+                }
+                System.out.println(challenger.getName() + " has been defeated!");
+            }
+            System.out.println(player.getName() + " has won the battle in the arena!");
+        }
+
+        public void addAudience(int audience) {
+            if (currentAudience + audience <= audienceCapacity) {
+                currentAudience += audience;
+                System.out.println(audience + " audience members have entered the arena. Current audience: " + currentAudience);
+            } else {
+                System.out.println("The arena cannot hold more audience members. Maximum capacity: " + audienceCapacity);
+            }
         }
     }
 
     class Herb {
         private String name;
         private String effect;
+        private int rarity;
 
-        public Herb(String name, String effect) {
+        public Herb(String name, String effect, int rarity) {
             this.name = name;
             this.effect = effect;
+            this.rarity = rarity;
+        }
+
+        public String getEffect() {
+            return effect;
+        }
+
+        public int getRarity() {
+            return rarity;
         }
     }
 
     class Alchemy {
         private List<Herb> ingredients;
+        private int alchemySkillLevel;
 
-        public Alchemy() {
+        public Alchemy(int alchemySkillLevel) {
             this.ingredients = new ArrayList<>();
+            this.alchemySkillLevel = alchemySkillLevel;
         }
 
         public void addIngredient(Herb herb) {
             ingredients.add(herb);
+            System.out.println(herb.getName() + " added to the alchemy mix.");
         }
 
         public Potion createPotion() {
-            // Logic for creating a potion from herbs
-            return new Potion("Healing Potion", 50);
+            if (ingredients.isEmpty()) {
+                System.out.println("No ingredients available to create a potion.");
+                return null;
+            }
+            int totalEffect = 0;
+            for (Herb herb : ingredients) {
+                totalEffect += herb.getRarity();
+            }
+            ingredients.clear();
+            int potency = totalEffect * alchemySkillLevel;
+            System.out.println("Potion created with potency: " + potency);
+            return new Potion("Custom Potion", potency);
         }
     }
 
     class Potion {
         private String name;
         private int effectAmount;
+        private boolean isMagical;
 
         public Potion(String name, int effectAmount) {
             this.name = name;
             this.effectAmount = effectAmount;
+            this.isMagical = false;
         }
 
         public void drink(Player player) {
-            // Logic for drinking the potion
+            if (isMagical) {
+                System.out.println("Drinking magical potion: " + name);
+            } else {
+                System.out.println("Drinking potion: " + name);
+            }
             player.heal(effectAmount);
+        }
+
+        public void enchant() {
+            this.isMagical = true;
+            System.out.println(name + " has been enchanted and is now a magical potion!");
         }
     }
 }
