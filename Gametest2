@@ -1223,3 +1223,361 @@ class RPGGameElements {
         }
     }
 }
+
+class RPGGameElements {
+    enum PlayerClass {
+        WARRIOR, MAGE, ARCHER
+    }
+
+    class Player {
+        private String name;
+        private PlayerClass playerClass;
+        private int health;
+        private int mana;
+        private int level;
+        private int experience;
+        private Inventory inventory;
+        private int strength;
+        private int agility;
+        private int intelligence;
+        private int defense;
+        private int gold;
+
+        public Player(String name, PlayerClass playerClass) {
+            this.name = name;
+            this.playerClass = playerClass;
+            this.level = 1;
+            this.experience = 0;
+            this.gold = 100;
+            this.inventory = new Inventory();
+            initializeStatsBasedOnClass();
+        }
+
+        private void initializeStatsBasedOnClass() {
+            switch (playerClass) {
+                case WARRIOR:
+                    this.health = 150;
+                    this.mana = 50;
+                    this.strength = 20;
+                    this.agility = 10;
+                    this.intelligence = 5;
+                    this.defense = 15;
+                    break;
+                case MAGE:
+                    this.health = 80;
+                    this.mana = 150;
+                    this.strength = 5;
+                    this.agility = 10;
+                    this.intelligence = 25;
+                    this.defense = 5;
+                    break;
+                case ARCHER:
+                    this.health = 100;
+                    this.mana = 80;
+                    this.strength = 10;
+                    this.agility = 25;
+                    this.intelligence = 10;
+                    this.defense = 10;
+                    break;
+            }
+        }
+
+        public void attack(Enemy enemy) {
+            int damage;
+            switch (playerClass) {
+                case WARRIOR:
+                    damage = strength + (int) (Math.random() * 10);
+                    System.out.println(name + " (Warrior) attacks " + enemy.getName() + " for " + damage + " damage!");
+                    break;
+                case MAGE:
+                    if (mana >= 20) {
+                        damage = intelligence + (int) (Math.random() * 15);
+                        mana -= 20;
+                        System.out.println(name + " (Mage) casts a spell on " + enemy.getName() + " for " + damage + " damage! Mana left: " + mana);
+                    } else {
+                        System.out.println(name + " does not have enough mana to cast a spell.");
+                        return;
+                    }
+                    break;
+                case ARCHER:
+                    damage = agility + (int) (Math.random() * 12);
+                    System.out.println(name + " (Archer) shoots an arrow at " + enemy.getName() + " for " + damage + " damage!");
+                    break;
+                default:
+                    damage = 0;
+            }
+            enemy.takeDamage(damage);
+            if (enemy.getHealth() <= 0) {
+                gainExperience(enemy.getExperiencePoints());
+                collectLoot(enemy.getLoot());
+            }
+        }
+
+        public void heal(int amount) {
+            health += amount;
+            health = Math.min(health, getMaxHealth()); // Ensure health doesn't exceed max
+            System.out.println(name + " heals for " + amount + " health points. Current health: " + health);
+        }
+
+        public void gainExperience(int xp) {
+            experience += xp;
+            System.out.println(name + " gains " + xp + " experience points. Total experience: " + experience);
+            if (experience >= level * 100) {
+                levelUp();
+            }
+        }
+
+        private void levelUp() {
+            level++;
+            experience = 0;
+            health = getMaxHealth();
+            mana += 10;
+            switch (playerClass) {
+                case WARRIOR:
+                    strength += 7;
+                    agility += 3;
+                    defense += 5;
+                    break;
+                case MAGE:
+                    intelligence += 7;
+                    mana += 20;
+                    agility += 2;
+                    break;
+                case ARCHER:
+                    agility += 7;
+                    strength += 3;
+                    defense += 2;
+                    break;
+            }
+            System.out.println(name + " has leveled up! New level: " + level + ". Health, mana, and stats improved.");
+        }
+
+        public void collectLoot(Loot loot) {
+            System.out.println(name + " has collected loot: " + loot.getName() + " (Rarity: " + loot.getRarity() + ")");
+            inventory.addItem(loot);
+            if (loot.getValue() > 0) {
+                gold += loot.getValue();
+                System.out.println(name + " has gained " + loot.getValue() + " gold. Total gold: " + gold);
+            }
+        }
+
+        public int getMaxHealth() {
+            return health + (level * 20);
+        }
+
+        public int getHealth() {
+            return health;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public Inventory getInventory() {
+            return inventory;
+        }
+
+        public int getGold() {
+            return gold;
+        }
+
+        public void takeDamage(int damage) {
+            health -= damage;
+            if (health <= 0) {
+                System.out.println(name + " has been defeated!");
+            } else {
+                System.out.println(name + " has " + health + " health remaining.");
+            }
+        }
+    }
+
+    class Enemy {
+        private String name;
+        private int health;
+        private int damage;
+        private int experiencePoints;
+        private Loot loot;
+
+        public Enemy(String name, int health, int damage, int experiencePoints, Loot loot) {
+            this.name = name;
+            this.health = health;
+            this.damage = damage;
+            this.experiencePoints = experiencePoints;
+            this.loot = loot;
+        }
+
+        public void attack(Player player) {
+            int attackDamage = damage + (int)(Math.random() * 3); // Variability in attack damage
+            System.out.println(name + " attacks " + player.getName() + " for " + attackDamage + " damage!");
+            player.takeDamage(attackDamage);
+        }
+
+        public void takeDamage(int damage) {
+            health -= damage;
+            if (health <= 0) {
+                System.out.println(name + " has been defeated!");
+            } else {
+                System.out.println(name + " has " + health + " health remaining.");
+            }
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public int getHealth() {
+            return health;
+        }
+
+        public int getExperiencePoints() {
+            return experiencePoints;
+        }
+
+        public Loot getLoot() {
+            return loot;
+        }
+    }
+
+    class Healer {
+        private int healingPower;
+        private int cost;
+
+        public Healer() {
+            this.healingPower = 50;
+            this.cost = 20; // Cost in gold
+        }
+
+        public void heal(Player player) {
+            if (player.getGold() >= cost) {
+                player.heal(healingPower);
+                System.out.println("Healer heals " + player.getName() + " for " + healingPower + " health points for " + cost + " gold.");
+            } else {
+                System.out.println("Not enough gold for healing. Healer requires " + cost + " gold.");
+            }
+        }
+    }
+
+    class Trainer {
+        private String skillType;
+        private int trainingCost;
+
+        public Trainer() {
+            this.skillType = "Combat Skills";
+            this.trainingCost = 100;
+        }
+
+        public void train(Player player) {
+            if (player.getGold() >= trainingCost) {
+                System.out.println("Trainer trains " + player.getName() + " in " + skillType + ". Training cost: " + trainingCost + " gold.");
+                player.gainExperience(50); // Gain experience through training
+                // Reduce player's gold
+            } else {
+                System.out.println(player.getName() + " doesn't have enough gold for training. Required: " + trainingCost);
+            }
+        }
+    }
+
+    class Loot {
+        private String name;
+        private String rarity;
+        private int value;
+
+        public Loot(String name, String rarity, int value) {
+            this.name = name;
+            this.rarity = rarity;
+            this.value = value;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public String getRarity() {
+            return rarity;
+        }
+
+        public int getValue() {
+            return value;
+        }
+    }
+
+    class Item {
+        private String name;
+        private String type;
+        private int value;
+
+        public Item(String name, String type, int value) {
+            this.name = name;
+            this.type = type;
+            this.value = value;
+        }
+
+        public void use(Player player) {
+            if (type.equals("healing")) {
+                player.heal(value);
+                System.out.println(name + " used, healing " + value + " health points.");
+            } else if (type.equals("mana")) {
+                player.mana += value;
+                System.out.println(name + " used, restoring " + value + " mana points.");
+            } else {
+                System.out.println(name + " used, but nothing happened.");
+            }
+        }
+
+        public String getName() {
+            return name;
+        }
+    }
+
+    class Mount {
+        private String name;
+        private int speed;
+        private boolean isSpecial;
+        private int stamina;
+
+        public Mount(String name, int speed, boolean isSpecial) {
+            this.name = name;
+            this.speed = speed;
+            this.isSpecial = isSpecial;
+            this.stamina = 100;
+        }
+
+        public void ride(Player player) {
+            if (stamina > 0) {
+                System.out.println(player.getName() + " is now riding " + name + " at a speed of " + speed + ".");
+                stamina -= 10;
+                System.out.println(name + " has " + stamina + " stamina remaining.");
+            } else {
+                System.out.println(name + " is too tired to continue. Rest required.");
+            }
+        }
+
+        public void rest() {
+            stamina = 100;
+            System.out.println(name + " has rested and regained full stamina.");
+        }
+    }
+
+    class Pet {
+        private String name;
+        private int loyalty;
+        private String type;
+        private int assistPower;
+
+        public Pet(String name, int loyalty, String type) {
+            this.name = name;
+            this.loyalty = loyalty;
+            this.type = type;
+            this.assistPower = 10 + loyalty / 2;
+        }
+
+        public void follow(Player player) {
+            System.out.println(name + " is loyally following " + player.getName() + ".");
+        }
+
+        public void assist(Player player) {
+            System.out.println(name + " assists " + player.getName() + " in battle, providing " + assistPower + " extra damage.");
+            // Add specific logic for pet assistance, e.g., increasing player attack
+        }
+    }
+}
