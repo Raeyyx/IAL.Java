@@ -1,0 +1,56 @@
+package basis;
+
+public class Taschenrechner {
+
+    double ergebnis;
+    public static final double PI = 3.141592653589793;
+
+    public Taschenrechner() {
+        ergebnis = 0.0;
+    }
+
+    public void addiere(double zahl) {
+        ergebnis = ergebnis + zahl;
+        System.out.println("Ergebnis nach Addition: " + ergebnis);
+    }
+
+    public void subtrahiere(double zahl) {
+        ergebnis = ergebnis - zahl;
+        System.out.println("Ergebnis nach Subtraktion: " + ergebnis);
+    }
+
+    public void multipliziere(double zahl) {
+        ergebnis = ergebnis * zahl;
+        System.out.println("Ergebnis nach Multiplikation: " + ergebnis);
+    }
+
+    public void dividiere(double zahl) {
+        if (zahl != 0) {
+            ergebnis = ergebnis / zahl;
+            System.out.println("Ergebnis nach Division: " + ergebnis);
+        } else {
+            System.out.println("Fehler: Man kann nicht durch Null teilen.");
+        }
+    }
+
+    public double zeigeErgebnis() {
+        return ergebnis;
+    }
+
+    public void setzeZurueck() {
+        ergebnis = 0.0;
+        System.out.println("Ergebnis zurückgesetzt auf: " + ergebnis);
+    }
+
+    public static void main(String[] args) {
+        Taschenrechner meinRechner = new Taschenrechner();
+
+        meinRechner.addiere(5);
+        meinRechner.subtrahiere(2);
+        meinRechner.multipliziere(3);
+        meinRechner.dividiere(4);
+        meinRechner.setzeZurueck();
+
+        System.out.println("Der Wert von PI ist: " + Taschenrechner.PI);
+    }
+}
