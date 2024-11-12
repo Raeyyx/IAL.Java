@@ -1,0 +1,44 @@
+package basis;
+
+public class Himmelsrichtungen {
+    public static void main(String[] args) {
+        String bewegung1 = "NOWS";
+        String bewegung2 = "NNOOSSWW";
+        String bewegung3 = "NNO";
+
+        boolean ergebnis1 = istZurueckAmStart(bewegung1);
+        boolean ergebnis2 = istZurueckAmStart(bewegung2);
+        boolean ergebnis3 = istZurueckAmStart(bewegung3);
+
+        System.out.println(ergebnis1);
+        System.out.println(ergebnis2);
+        System.out.println(ergebnis3);
+    }
+
+    public static boolean istZurueckAmStart(String bewegungen) {
+        int x = 0;
+        int y = 0;
+
+        for (int i = 0; i < bewegungen.length(); i++) {
+            char richtung = bewegungen.charAt(i);
+
+            if (richtung == 'N') {
+                y = y + 1;
+            } else if (richtung == 'S') {
+                y = y - 1;
+            } else if (richtung == 'O') {
+                x = x + 1;
+            } else if (richtung == 'W') {
+                x = x - 1;
+            } else {
+                System.out.println("Ungueltige Richtung: " + richtung);
+            }
+        }
+
+        if (x == 0 && y == 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+}
