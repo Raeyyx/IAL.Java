@@ -438,4 +438,63 @@ class StableMaster extends NPC {
     }
 }
 
+class RPGGameElements {
+    class Artifact {
+        private String name;
+        private String description;
+
+        public Artifact(String name, String description) {
+            this.name = name;
+            this.description = description;
+        }
+    }
+
+    class Trap {
+        private String type;
+        private int damage;
+
+        public Trap(String type, int damage) {
+            this.type = type;
+            this.damage = damage;
+        }
+
+        public void trigger(Player player) {
+            player.takeDamage(damage);
+        }
+    }
+
+    class Spell {
+        private String name;
+        private int manaCost;
+        private int damage;
+
+        public Spell(String name, int manaCost, int damage) {
+            this.name = name;
+            this.manaCost = manaCost;
+            this.damage = damage;
+        }
+
+        public int getManaCost() {
+            return manaCost;
+        }
+
+        public int getDamage() {
+            return damage;
+        }
+    }
+
+    class Guild {
+        private String name;
+        private List<Player> members;
+
+        public Guild(String name) {
+            this.name = name;
+            this.members = new ArrayList<>();
+        }
+
+        public void addMember(Player player) {
+            members.add(player);
+        }
+    }
+}
 
