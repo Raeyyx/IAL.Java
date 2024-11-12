@@ -926,3 +926,300 @@ class RPGGameCoreElements {
         }
     }
 }
+
+class RPGGameElements {
+    class Quest {
+        private String title;
+        private String description;
+        private int reward;
+        private boolean isCompleted;
+        private List<String> objectives;
+
+        public Quest(String title, String description, int reward, List<String> objectives) {
+            this.title = title;
+            this.description = description;
+            this.reward = reward;
+            this.isCompleted = false;
+            this.objectives = objectives;
+        }
+
+        public void startQuest() {
+            System.out.println("Quest started: " + title + " - " + description);
+            for (String objective : objectives) {
+                System.out.println("Objective: " + objective);
+            }
+        }
+
+        public void completeObjective(String objective) {
+            if (objectives.contains(objective)) {
+                objectives.remove(objective);
+                System.out.println("Objective completed: " + objective);
+                if (objectives.isEmpty()) {
+                    completeQuest();
+                }
+            } else {
+                System.out.println("Objective not found: " + objective);
+            }
+        }
+
+        public void completeQuest(Player player) {
+            if (!isCompleted) {
+                isCompleted = true;
+                player.gainExperience(reward);
+                System.out.println("Quest completed: " + title + ". Reward: " + reward + " XP");
+            } else {
+                System.out.println("Quest already completed.");
+            }
+        }
+    }
+
+    class Guild {
+        private String name;
+        private List<Player> members;
+        private int guildLevel;
+        private int experience;
+
+        public Guild(String name) {
+            this.name = name;
+            this.members = new ArrayList<>();
+            this.guildLevel = 1;
+            this.experience = 0;
+        }
+
+        public void addMember(Player player) {
+            if (!members.contains(player)) {
+                members.add(player);
+                System.out.println(player.getName() + " has joined the guild " + name + ".");
+            } else {
+                System.out.println(player.getName() + " is already a member of the guild.");
+            }
+        }
+
+        public void assignQuest(Player player, Quest quest) {
+            System.out.println("Guild " + name + " assigns the quest: " + quest.title + " to " + player.getName());
+            quest.startQuest();
+        }
+
+        public void gainExperience(int xp) {
+            experience += xp;
+            System.out.println("Guild " + name + " gained " + xp + " experience points. Total: " + experience);
+            if (experience >= guildLevel * 1000) {
+                levelUp();
+            }
+        }
+
+        private void levelUp() {
+            guildLevel++;
+            experience = 0;
+            System.out.println("Guild " + name + " has leveled up! New level: " + guildLevel);
+        }
+    }
+
+    class Boss {
+        private String name;
+        private int health;
+        private int damage;
+        private Loot reward;
+        private boolean enraged;
+
+        public Boss(String name, int health, int damage, Loot reward) {
+            this.name = name;
+            this.health = health;
+            this.damage = damage;
+            this.reward = reward;
+            this.enraged = false;
+        }
+
+        public void attack(Player player) {
+            int actualDamage = enraged ? damage * 2 : damage;
+            System.out.println(name + " attacks " + player.getName() + " for " + actualDamage + " damage!");
+            player.takeDamage(actualDamage);
+        }
+
+        public void takeDamage(int damage) {
+            health -= damage;
+            if (health <= health / 2 && !enraged) {
+                enrage();
+            }
+            if (health <= 0) {
+                System.out.println(name + " has been defeated!");
+                dropLoot();
+            } else {
+                System.out.println(name + " has " + health + " health remaining.");
+            }
+        }
+
+        private void enrage() {
+            enraged = true;
+            System.out.println(name + " is enraged! Damage doubled!");
+        }
+
+        public void dropLoot() {
+            System.out.println("Boss " + name + " dropped loot: " + reward.getName() + " (" + reward.getRarity() + ")");
+        }
+    }
+
+    class Dungeon {
+        private String name;
+        private int levelRequirement;
+        private List<Enemy> enemies;
+        private Boss boss;
+        private int treasureCount;
+
+        public Dungeon(String name, int levelRequirement, List<Enemy> enemies, Boss boss, int treasureCount) {
+            this.name = name;
+            this.levelRequirement = levelRequirement;
+            this.enemies = enemies;
+            this.boss = boss;
+            this.treasureCount = treasureCount;
+        }
+
+        public void enter(Player player) {
+            if (player.level >= levelRequirement) {
+                System.out.println(player.getName() + " enters the dungeon: " + name);
+                for (Enemy enemy : enemies) {
+                    while (enemy.getHealth() > 0 && player.getHealth() > 0) {
+                        player.attack(enemy);
+                        if (enemy.getHealth() > 0) {
+                            enemy.attack(player);
+                        }
+                    }
+                }
+                if (player.getHealth() > 0) {
+                    System.out.println("The boss " + boss.name + " appears!");
+                    while (boss.health > 0 && player.getHealth() > 0) {
+                        player.attack(boss);
+                        if (boss.health > 0) {
+                            boss.attack(player);
+                        }
+                    }
+                    if (player.getHealth() > 0) {
+                        findTreasure(player);
+                    }
+                }
+            } else {
+                System.out.println("Level requirement not met. Dungeon level requirement: " + levelRequirement);
+            }
+        }
+
+        private void findTreasure(Player player) {
+            System.out.println(player.getName() + " found " + treasureCount + " treasures in the dungeon!");
+        }
+    }
+
+    class City {
+        private String name;
+        private List<Shop> shops;
+        private Healer healer;
+        private Trainer trainer;
+
+        public City(String name) {
+            this.name = name;
+            this.shops = new ArrayList<>();
+            this.healer = new Healer();
+            this.trainer = new Trainer();
+        }
+
+        public void rest(Player player) {
+            player.heal(player.getMaxHealth() / 2);
+            System.out.println(player.getName() + " rests in the city " + name + " and recovers health.");
+        }
+
+        public void addShop(Shop shop) {
+            shops.add(shop);
+        }
+
+        public void visitShop(Player player, String shopName) {
+            for (Shop shop : shops) {
+                if (shop.getName().equals(shopName)) {
+                    shop.interact(player);
+                    return;
+                }
+            }
+            System.out.println("Shop " + shopName + " not found in city " + name);
+        }
+
+        public void healPlayer(Player player) {
+            healer.heal(player);
+        }
+
+        public void trainPlayer(Player player) {
+            trainer.train(player);
+        }
+    }
+
+    class Shop {
+        private String name;
+        private List<Item> itemsForSale;
+
+        public Shop(String name) {
+            this.name = name;
+            this.itemsForSale = new ArrayList<>();
+        }
+
+        public void addItem(Item item) {
+            itemsForSale.add(item);
+        }
+
+        public void interact(Player player) {
+            System.out.println("Welcome to " + name + "! Items available:");
+            for (Item item : itemsForSale) {
+                System.out.println("- " + item.getName() + " (" + item.type + "): " + item.value + " gold");
+            }
+        }
+
+        public String getName() {
+            return name;
+        }
+    }
+
+    class Trap {
+        private String type;
+        private int damage;
+        private boolean hidden;
+
+        public Trap(String type, int damage, boolean hidden) {
+            this.type = type;
+            this.damage = damage;
+            this.hidden = hidden;
+        }
+
+        public void trigger(Player player) {
+            if (hidden) {
+                System.out.println("A hidden trap has been triggered! " + type + " deals " + damage + " damage to " + player.getName());
+            } else {
+                System.out.println("Trap triggered! " + type + " deals " + damage + " damage to " + player.getName());
+            }
+            player.takeDamage(damage);
+        }
+    }
+
+    class Artifact {
+        private String name;
+        private String effect;
+        private int cooldown;
+        private boolean isOnCooldown;
+
+        public Artifact(String name, String effect, int cooldown) {
+            this.name = name;
+            this.effect = effect;
+            this.cooldown = cooldown;
+            this.isOnCooldown = false;
+        }
+
+        public void use(Player player) {
+            if (isOnCooldown) {
+                System.out.println("Artifact " + name + " is on cooldown. Please wait.");
+            } else {
+                System.out.println("Using artifact: " + name + " - Effect: " + effect);
+                activateCooldown();
+                // Effect logic can be implemented as per the game mechanics
+            }
+        }
+
+        private void activateCooldown() {
+            isOnCooldown = true;
+            System.out.println("Artifact " + name + " is now on cooldown for " + cooldown + " turns.");
+        }
+    }
+}
