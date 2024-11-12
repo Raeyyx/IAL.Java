@@ -247,37 +247,6 @@ class GamePanel extends JPanel implements ActionListener {
         this.isFestivalParticipating = false;
         this.isTreasureHuntActive = false;
         this.hasRoyalDecree = false;
-
-        // Add some enemies to the game
-        for (int i = 0; i < 5; i++) {
-            enemies.add(new Enemy(animations, 200 + i * 100, 300));
-        }
-
-        // Add bosses to the game
-        bosses.add(new Boss("Dragon Lord", 1000, 200, new Loot("Dragon's Treasure", "Legendary")));
-        bosses.add(new Boss("Lich King", 800, 150, new Loot("Frozen Crown", "Legendary")));
-        bosses.add(new Boss("Forest Guardian", 500, 100, new Loot("Nature's Blessing", "Legendary")));
-        bosses.add(new Boss("Shadow Assassin", 600, 120, new Loot("Shadow Dagger", "Legendary")));
-        bosses.add(new Boss("Fire Titan", 1200, 250, new Loot("Flame Core", "Legendary")));
-
-        // Add dungeons to the game
-        dungeons.add(new Dungeon("Dark Caverns", 3, bosses.get(0), new Loot("Cavern Relic", "Rare")));
-        dungeons.add(new Dungeon("Frozen Keep", 4, bosses.get(1), new Loot("Ice Shard", "Epic")));
-        dungeons.add(new Dungeon("Enchanted Forest", 2, bosses.get(2), new Loot("Forest Amulet", "Rare")));
-        dungeons.add(new Dungeon("Shadow Lair", 5, bosses.get(3), new Loot("Assassin's Cloak", "Epic")));
-        dungeons.add(new Dungeon("Flame Fortress", 6, bosses.get(4), new Loot("Molten Crown", "Legendary")));
-
-        // Add NPCs to the city
-        npcs.add(new NPC("Merchant", 100, 500));
-        npcs.add(new NPC("Healer", 600, 500));
-        npcs.add(new NPC("Quest Giver", 300, 500));
-        npcs.add(new NPC("Blacksmith", 700, 100)); // Blacksmith NPC for crafting
-        npcs.add(new NPC("Fishmonger", 150, 450)); // Fishmonger NPC for fishing rewards
-        npcs.add(new NPC("Guild Master", 350, 200)); // Guild Master NPC for joining guilds
-        npcs.add(new StableMaster("Stable Master", 400, 350)); // Stable Master NPC for learning riding skill and buying mounts
-        npcs.add(new NPC("Cartographer", 500, 250)); // Cartographer NPC for buying world map
-        npcs.add(new NPC("Wilderness Trainer", 550, 400)); // Wilderness Trainer for camping skills
-        npcs.add(new NPC("Arena Master", 600, 100)); // Arena Master for accessing the arena
     }
 
     @Override
@@ -346,6 +315,70 @@ class Enemy {
     }
 }
 
+class Ally {
+    private String name;
+    private int health;
+    private int damage;
+
+    public Ally(String name, int health, int damage) {
+        this.name = name;
+        this.health = health;
+        this.damage = damage;
+    }
+
+    public void assist(Player player) {
+        // Logic for assisting the player during combat
+    }
+}
+
+class Item {
+    private String name;
+    private String type;
+    private int value;
+
+    public Item(String name, String type, int value) {
+        this.name = name;
+        this.type = type;
+        this.value = value;
+    }
+
+    public void use(Player player) {
+        // Logic for using the item
+    }
+}
+
+class Pet {
+    private String name;
+    private int loyalty;
+    private String type;
+
+    public Pet(String name, int loyalty, String type) {
+        this.name = name;
+        this.loyalty = loyalty;
+        this.type = type;
+    }
+
+    public void follow(Player player) {
+        // Logic for pet following the player
+    }
+}
+
+class Mount {
+    private String name;
+    private int speed;
+    private boolean isSpecial;
+
+    public Mount(String name, int speed, boolean isSpecial) {
+        this.name = name;
+        this.speed = speed;
+        this.isSpecial = isSpecial;
+    }
+
+    public void ride(Player player) {
+        // Logic for riding the mount
+    }
+}
+
 class Boss {
     private String name;
     private int health;
@@ -404,3 +437,5 @@ class StableMaster extends NPC {
         super(name, x, y);
     }
 }
+
+
