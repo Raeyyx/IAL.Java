@@ -5,8 +5,12 @@ package basis;
 Die Operationen Addieren, Suptrahieren, Multiplizieren und Dividieren sollen als eigene Methoden erstellt werden. Zudem soll der Taschenrechner das aktuelle Zwischenergebnis darstellen können oder das Zwischenergebnis zurück auf 0 setzen. 
 
 Des weiteren soll auch die Zahl π als eine static "Methode" implementiert werden (Hinweis "final").
- * 
+ * Erweiterung in der main:
+
+2 doubles über Scanner eingeben und dann über einen String Input die geforderte Operation einlesen. Danach Switch case anwenden.
  */
+import java.util.Scanner;
+
 public class Taschenrechner {
 
     double ergebnis;
@@ -50,14 +54,42 @@ public class Taschenrechner {
     }
 
     public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
         Taschenrechner meinRechner = new Taschenrechner();
 
-        meinRechner.addiere(5);
-        meinRechner.subtrahiere(2);
-        meinRechner.multipliziere(3);
-        meinRechner.dividiere(4);
-        meinRechner.setzeZurueck();
+        System.out.print("Geben Sie die erste Zahl ein: ");
+        double zahl1 = scanner.nextDouble();
+
+        System.out.print("Geben Sie die zweite Zahl ein: ");
+        double zahl2 = scanner.nextDouble();
+
+        meinRechner.ergebnis = zahl1;
+
+        System.out.print("Welche Operation möchten Sie durchführen? (+, -, *, /): ");
+        String operation = scanner.next();
+
+        switch (operation) {
+            case "+":
+                meinRechner.addiere(zahl2);
+                break;
+            case "-":
+                meinRechner.subtrahiere(zahl2);
+                break;
+            case "*":
+                meinRechner.multipliziere(zahl2);
+                break;
+            case "/":
+                meinRechner.dividiere(zahl2);
+                break;
+            default:
+                System.out.println("Ungültige Operation.");
+                break;
+        }
+
+        System.out.println("Aktuelles Ergebnis: " + meinRechner.zeigeErgebnis());
 
         System.out.println("Der Wert von PI ist: " + Taschenrechner.PI);
+
+        scanner.close();
     }
 }
