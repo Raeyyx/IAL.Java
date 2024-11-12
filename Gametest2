@@ -1,0 +1,406 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Random;
+
+public class RPGGame {
+    public static void main(String[] args) {
+        JFrame frame = new JFrame("RPG Game - Sturmwind");
+        GamePanel gamePanel = new GamePanel();
+        frame.add(gamePanel);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(800, 600);
+        frame.setVisible(true);
+    }
+}
+
+// Separate GamePanel class
+class GamePanel extends JPanel implements ActionListener {
+    private Player player;
+    private List<Enemy> enemies;
+    private List<Item> items;
+    private List<NPC> npcs;
+    private List<Quest> quests;
+    private Timer timer;
+    private HashMap<String, Image> animations;
+    private Random random;
+    private int score;
+    private boolean isNight;
+    private boolean inSafeZone;
+    private int weatherState; // 0: Clear, 1: Rainy, 2: Stormy
+    private boolean doubleXP; // Double XP event
+    private List<Ally> allies; // Allies that can help the player
+    private int playerStamina; // Stamina level of the player
+    private boolean isShopOpen; // Shop availability
+    private int mana; // Mana for special abilities
+    private boolean isTrading; // Whether the player is trading
+    private List<Trap> traps; // Traps that player needs to avoid
+    private boolean isPoisoned; // Player status effect
+    private int poisonDuration; // Duration for poison effect
+    private boolean playerShield; // Shield status
+    private int shieldDuration; // Duration of shield
+    private boolean isFishing; // Player activity - fishing
+    private int fishingSkill; // Fishing skill level
+    private int currentDungeonLevel; // Player's progress in the dungeon
+    private boolean rageMode; // Player rage mode
+    private int rageDuration; // Duration of rage mode
+    private List<Mount> mounts; // Player's available mounts
+    private boolean isCrafting; // Player activity - crafting
+    private boolean treasureMapFound; // Whether the player found a treasure map
+    private boolean hasPet; // Whether the player has a pet companion
+    private Pet pet; // The pet companion
+    private boolean stealthMode; // Stealth mode status
+    private int stealthDuration; // Duration of stealth mode
+    private boolean hasGuild; // Whether the player has joined a guild
+    private Guild playerGuild; // The player's guild
+    private boolean isTraining; // Player activity - training skills
+    private int trainingSkill; // Current skill being trained
+    private boolean hasRidingSkill; // Whether the player has learned riding
+    private boolean isBerserkModeActive; // Berserk mode status for the player
+    private int berserkDuration; // Duration of the berserk mode
+    private boolean hasMap; // Whether the player has acquired a world map
+    private boolean isCamping; // Camping status
+    private boolean isWeatherChanging; // Status for dynamic weather changes
+    private boolean hasTeleportAbility; // Whether the player has a teleport ability
+    private int reputation; // Player's reputation level
+    private boolean isBuildingCampfire; // Status for campfire building
+    private boolean hasMagicWeapon; // Whether the player has a magic weapon
+    private boolean isSummoningAlly; // Whether the player is summoning an ally
+    private boolean isCooking; // Cooking status
+    private int hungerLevel; // Player's hunger level
+    private boolean isInArena; // Whether the player is in the arena
+    private List<Artifact> artifacts; // Artifacts that the player collects
+    private boolean isUsingPotion; // Status for potion usage
+    private boolean hasSecretKey; // Whether the player has a secret key
+    private int lightLevel; // Level of light in dark areas
+    private boolean isMining; // Mining status
+    private boolean isForgingWeapon; // Forging weapon status
+    private boolean hasQuestLog; // Whether the player has a quest log
+    private boolean isTradingWithMerchant; // Whether the player is trading with a merchant
+    private boolean isExploringRuins; // Status for exploring ancient ruins
+    private boolean hasFoundTreasureChest; // Whether the player has found a treasure chest
+    private boolean isRepairingEquipment; // Repairing equipment status
+    private boolean hasMagicSpells; // Whether the player has learned magic spells
+    private boolean isLearningMagic; // Player activity - learning magic spells
+    private List<Spell> spellBook; // Player's spell book
+    private boolean isBreedingMounts; // Whether the player is breeding mounts
+    private List<Herb> herbsCollected; // Herbs collected for alchemy
+    private boolean isCreatingPotion; // Status for potion creation
+    private boolean isBuildingShelter; // Player activity - building a shelter
+    private boolean hasEnergyShield; // Whether the player has an energy shield
+    private int energyShieldDuration; // Duration of the energy shield
+    private boolean isEnchantingWeapon; // Enchanting weapon status
+    private boolean isAttackingCastle; // Whether the player is attacking a castle
+    private boolean isDefendingCastle; // Whether the player is defending a castle
+    private boolean hasBeacon; // Whether the player has a beacon for summoning allies
+    private boolean isInvestigatingMystery; // Investigating a mysterious event
+    private boolean hasMagicAmulet; // Whether the player has a magic amulet
+    private boolean isNavigatingLabyrinth; // Player activity - navigating a labyrinth
+    private boolean hasTeleportCrystal; // Whether the player has a teleport crystal
+    private boolean isTrainingPet; // Training pet companion
+    private boolean hasSecretMap; // Whether the player has found a secret map
+    private boolean isOpeningPortal; // Player activity - opening a magical portal
+    private boolean hasAlchemySkill; // Whether the player has learned alchemy
+    private boolean isAlchemyActive; // Status for alchemy crafting
+    private List<Boss> bosses; // List of different boss types
+    private List<Dungeon> dungeons; // List of different dungeons
+    private boolean isUpgradingGear; // Player activity - upgrading gear
+    private boolean isFishingCompetition; // Whether the player is in a fishing competition
+    private boolean hasTreasureDetector; // Whether the player has a treasure detector
+    private boolean isSiegeWarActive; // Whether the player is participating in a siege war
+    private boolean hasMagicCarpet; // Whether the player has acquired a magic carpet
+    private boolean isRidingMagicCarpet; // Status for riding a magic carpet
+    private boolean isTrainingCombatSkills; // Player activity - training combat skills
+    private boolean isBlacksmithing; // Status for crafting metal items at the blacksmith
+    private boolean hasPortableForge; // Whether the player has a portable forge for crafting
+    private boolean isRaidingCastle; // Whether the player is raiding an enemy castle
+    private boolean isBlessingActive; // Status for receiving a blessing from the city's priest
+    private boolean hasSpecialMount; // Whether the player has acquired a special mount
+    private boolean isArcheryTraining; // Player activity - training archery skills
+    private boolean isHuntingWildlife; // Player activity - hunting wildlife for resources
+    private boolean isBuildingTraps; // Status for building traps to defend city
+    private boolean isPotionBrewing; // Status for brewing advanced potions
+    private boolean isHerbCultivating; // Whether the player is cultivating herbs for alchemy
+    private boolean isDragonTaming; // Status for attempting to tame a dragon
+    private boolean isCookingContest; // Whether the player is participating in a cooking contest
+    private boolean isArenaChampion; // Whether the player has become the arena champion
+    private boolean isFestivalParticipating; // Whether the player is participating in a city festival
+    private boolean isTreasureHuntActive; // Whether the player is participating in a treasure hunt event
+    private boolean hasRoyalDecree; // Whether the player has a royal decree from the king
+
+    public GamePanel() {
+        this.animations = AnimationsLoader.loadAnimations();
+        this.player = new Player(animations);
+        this.enemies = new ArrayList<>();
+        this.items = new ArrayList<>();
+        this.npcs = new ArrayList<>();
+        this.quests = new ArrayList<>();
+        this.allies = new ArrayList<>();
+        this.traps = new ArrayList<>();
+        this.mounts = new ArrayList<>();
+        this.artifacts = new ArrayList<>();
+        this.spellBook = new ArrayList<>();
+        this.herbsCollected = new ArrayList<>();
+        this.bosses = new ArrayList<>();
+        this.dungeons = new ArrayList<>();
+        this.random = new Random();
+        this.timer = new Timer(16, this); // 60 FPS
+        this.timer.start();
+        this.score = 0;
+        this.isNight = false;
+        this.inSafeZone = false;
+        this.weatherState = 0; // Start with clear weather
+        this.doubleXP = false;
+        this.playerStamina = 100;
+        this.isShopOpen = false;
+        this.mana = 50;
+        this.isTrading = false;
+        this.isPoisoned = false;
+        this.poisonDuration = 0;
+        this.playerShield = false;
+        this.shieldDuration = 0;
+        this.isFishing = false;
+        this.fishingSkill = 1;
+        this.currentDungeonLevel = 1;
+        this.rageMode = false;
+        this.rageDuration = 0;
+        this.isCrafting = false;
+        this.treasureMapFound = false;
+        this.hasPet = false;
+        this.pet = null;
+        this.stealthMode = false;
+        this.stealthDuration = 0;
+        this.hasGuild = false;
+        this.playerGuild = null;
+        this.isTraining = false;
+        this.trainingSkill = 0;
+        this.hasRidingSkill = false;
+        this.isBerserkModeActive = false;
+        this.berserkDuration = 0;
+        this.hasMap = false;
+        this.isCamping = false;
+        this.isWeatherChanging = false;
+        this.hasTeleportAbility = false;
+        this.reputation = 0;
+        this.isBuildingCampfire = false;
+        this.hasMagicWeapon = false;
+        this.isSummoningAlly = false;
+        this.isCooking = false;
+        this.hungerLevel = 100;
+        this.isInArena = false;
+        this.isUsingPotion = false;
+        this.hasSecretKey = false;
+        this.lightLevel = 100;
+        this.isMining = false;
+        this.isForgingWeapon = false;
+        this.hasQuestLog = false;
+        this.isTradingWithMerchant = false;
+        this.isExploringRuins = false;
+        this.hasFoundTreasureChest = false;
+        this.isRepairingEquipment = false;
+        this.hasMagicSpells = false;
+        this.isLearningMagic = false;
+        this.isBreedingMounts = false;
+        this.isCreatingPotion = false;
+        this.isBuildingShelter = false;
+        this.hasEnergyShield = false;
+        this.energyShieldDuration = 0;
+        this.isEnchantingWeapon = false;
+        this.isAttackingCastle = false;
+        this.isDefendingCastle = false;
+        this.hasBeacon = false;
+        this.isInvestigatingMystery = false;
+        this.hasMagicAmulet = false;
+        this.isNavigatingLabyrinth = false;
+        this.hasTeleportCrystal = false;
+        this.isTrainingPet = false;
+        this.hasSecretMap = false;
+        this.isOpeningPortal = false;
+        this.hasAlchemySkill = false;
+        this.isAlchemyActive = false;
+        this.isUpgradingGear = false;
+        this.isFishingCompetition = false;
+        this.hasTreasureDetector = false;
+        this.isSiegeWarActive = false;
+        this.hasMagicCarpet = false;
+        this.isRidingMagicCarpet = false;
+        this.isTrainingCombatSkills = false;
+        this.isBlacksmithing = false;
+        this.hasPortableForge = false;
+        this.isRaidingCastle = false;
+        this.isBlessingActive = false;
+        this.hasSpecialMount = false;
+        this.isArcheryTraining = false;
+        this.isHuntingWildlife = false;
+        this.isBuildingTraps = false;
+        this.isPotionBrewing = false;
+        this.isHerbCultivating = false;
+        this.isDragonTaming = false;
+        this.isCookingContest = false;
+        this.isArenaChampion = false;
+        this.isFestivalParticipating = false;
+        this.isTreasureHuntActive = false;
+        this.hasRoyalDecree = false;
+
+        // Add some enemies to the game
+        for (int i = 0; i < 5; i++) {
+            enemies.add(new Enemy(animations, 200 + i * 100, 300));
+        }
+
+        // Add bosses to the game
+        bosses.add(new Boss("Dragon Lord", 1000, 200, new Loot("Dragon's Treasure", "Legendary")));
+        bosses.add(new Boss("Lich King", 800, 150, new Loot("Frozen Crown", "Legendary")));
+        bosses.add(new Boss("Forest Guardian", 500, 100, new Loot("Nature's Blessing", "Legendary")));
+        bosses.add(new Boss("Shadow Assassin", 600, 120, new Loot("Shadow Dagger", "Legendary")));
+        bosses.add(new Boss("Fire Titan", 1200, 250, new Loot("Flame Core", "Legendary")));
+
+        // Add dungeons to the game
+        dungeons.add(new Dungeon("Dark Caverns", 3, bosses.get(0), new Loot("Cavern Relic", "Rare")));
+        dungeons.add(new Dungeon("Frozen Keep", 4, bosses.get(1), new Loot("Ice Shard", "Epic")));
+        dungeons.add(new Dungeon("Enchanted Forest", 2, bosses.get(2), new Loot("Forest Amulet", "Rare")));
+        dungeons.add(new Dungeon("Shadow Lair", 5, bosses.get(3), new Loot("Assassin's Cloak", "Epic")));
+        dungeons.add(new Dungeon("Flame Fortress", 6, bosses.get(4), new Loot("Molten Crown", "Legendary")));
+
+        // Add NPCs to the city
+        npcs.add(new NPC("Merchant", 100, 500));
+        npcs.add(new NPC("Healer", 600, 500));
+        npcs.add(new NPC("Quest Giver", 300, 500));
+        npcs.add(new NPC("Blacksmith", 700, 100)); // Blacksmith NPC for crafting
+        npcs.add(new NPC("Fishmonger", 150, 450)); // Fishmonger NPC for fishing rewards
+        npcs.add(new NPC("Guild Master", 350, 200)); // Guild Master NPC for joining guilds
+        npcs.add(new StableMaster("Stable Master", 400, 350)); // Stable Master NPC for learning riding skill and buying mounts
+        npcs.add(new NPC("Cartographer", 500, 250)); // Cartographer NPC for buying world map
+        npcs.add(new NPC("Wilderness Trainer", 550, 400)); // Wilderness Trainer for camping skills
+        npcs.add(new NPC("Arena Master", 600, 100)); // Arena Master for accessing the arena
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        // Game logic updates go here
+        repaint();
+    }
+}
+
+class Player {
+    private int health;
+    private int mana;
+    private int stamina;
+    private HashMap<String, Image> animations;
+    private int x, y;
+
+    public Player(HashMap<String, Image> animations) {
+        this.animations = animations;
+        this.health = 100;
+        this.mana = 50;
+        this.stamina = 100;
+        this.x = 100;
+        this.y = 100;
+    }
+
+    public void move(int dx, int dy) {
+        x += dx;
+        y += dy;
+    }
+
+    public void attack(Enemy enemy) {
+        enemy.takeDamage(10);
+    }
+
+    public void takeDamage(int damage) {
+        health -= damage;
+        if (health <= 0) {
+            // Handle player death
+        }
+    }
+}
+
+class Enemy {
+    private int health;
+    private int damage;
+    private int x, y;
+    private HashMap<String, Image> animations;
+
+    public Enemy(HashMap<String, Image> animations, int x, int y) {
+        this.animations = animations;
+        this.health = 50;
+        this.damage = 10;
+        this.x = x;
+        this.y = y;
+    }
+
+    public void takeDamage(int damage) {
+        health -= damage;
+        if (health <= 0) {
+            // Handle enemy death
+        }
+    }
+
+    public void attack(Player player) {
+        player.takeDamage(damage);
+    }
+}
+
+class Boss {
+    private String name;
+    private int health;
+    private int damage;
+    private Loot loot;
+
+    public Boss(String name, int health, int damage, Loot loot) {
+        this.name = name;
+        this.health = health;
+        this.damage = damage;
+        this.loot = loot;
+    }
+
+    public Loot getLoot() {
+        return loot;
+    }
+}
+
+class Dungeon {
+    private String name;
+    private int difficulty;
+    private Boss boss;
+    private Loot reward;
+
+    public Dungeon(String name, int difficulty, Boss boss, Loot reward) {
+        this.name = name;
+        this.difficulty = difficulty;
+        this.boss = boss;
+        this.reward = reward;
+    }
+}
+
+class Loot {
+    private String name;
+    private String rarity;
+
+    public Loot(String name, String rarity) {
+        this.name = name;
+        this.rarity = rarity;
+    }
+}
+
+class NPC {
+    private String name;
+    private int x, y;
+
+    public NPC(String name, int x, int y) {
+        this.name = name;
+        this.x = x;
+        this.y = y;
+    }
+}
+
+class StableMaster extends NPC {
+    public StableMaster(String name, int x, int y) {
+        super(name, x, y);
+    }
+}
