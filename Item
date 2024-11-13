@@ -1,0 +1,167 @@
+package rpggame;
+
+import java.util.Objects;
+import java.util.Random;
+
+class Item {
+    private String name;
+    private String type;
+    private int value;
+    private boolean isUsable;
+    private boolean isEquippable;
+    private int durability;
+    private int maxDurability;
+    private boolean isLegendary;
+    private Random random;
+    private String rarity;
+    private int weight;
+
+    public Item(String name, String type, int value) {
+        this.name = name;
+        this.type = type;
+        this.value = value;
+        this.isUsable = Objects.equals(type, "healing") || Objects.equals(type, "mana");
+        this.isEquippable = Objects.equals(type, "weapon") || Objects.equals(type, "armor");
+        this.maxDurability = determineMaxDurability(type);
+        this.durability = this.maxDurability;
+        this.random = new Random();
+        this.isLegendary = random.nextInt(100) < 5; // 5% chance to be legendary
+        this.rarity = determineRarity();
+        this.weight = determineWeight(type);
+    }
+
+    private int determineMaxDurability(String type) {
+        switch (type) {
+            case "weapon":
+                return 100;
+            case "armor":
+                return 150;
+            default:
+                return 0;
+        }
+    }
+
+    private String determineRarity() {
+        int roll = random.nextInt(100);
+        if (roll < 5) {
+            return "Legendary";
+        } else if (roll < 20) {
+            return "Epic";
+        } else if (roll < 50) {
+            return "Rare";
+        } else {
+            return "Common";
+        }
+    }
+
+    private int determineWeight(String type) {
+        switch (type) {
+            case "weapon":
+                return random.nextInt(10) + 5; // Weight between 5-15
+            case "armor":
+                return random.nextInt(15) + 10; // Weight between 10-25
+            default:
+                return random.nextInt(3) + 1; // Weight between 1-3 for other items
+        }
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public int getValue() {
+        return value;
+    }
+
+    public boolean isUsable() {
+        return isUsable;
+    }
+
+    public boolean isEquippable() {
+        return isEquippable;
+    }
+
+    public boolean isLegendary() {
+        return isLegendary;
+    }
+
+    public String getRarity() {
+        return rarity;
+    }
+
+    public int getWeight() {
+        return weight;
+    }
+
+    public int getDurability() {
+        return durability;
+    }
+
+    public void use(Player player) {
+        if (!isUsable) {
+            System.out.println(name + " cannot be used directly.");
+            return;
+        }
+
+        switch (type) {
+            case "healing":
+                player.heal(value);
+                System.out.println(name + " used, healing " + value + " health points.");
+                break;
+            case "mana":
+                player.restoreMana(value);
+                System.out.println(name + " used, restoring " + value + " mana points.");
+                break;
+            default:
+                System.out.println(name + " used, but nothing happened.");
+        }
+        degradeDurability();
+    }
+
+    public void equip(Player player) {
+        if (!isEquippable) {
+            System.out.println(name + " cannot be equipped.");
+            return;
+        }
+
+        if (Objects.equals(type, "weapon")) {
+            System.out.println(name + " equipped as a weapon.");
+            player.increaseAttack(value);
+            degradeDurability();
+        } else if (Objects.equals(type, "armor")) {
+            System.out.println(name + " equipped as armor.");
+            player.increaseDefense(value);
+            degradeDurability();
+        }
+    }
+
+    private void degradeDurability() {
+        if (durability > 0) {
+            int degradation = isLegendary ? random.nextInt(3) + 1 : random.nextInt(5) + 1; // Legendary items degrade slower
+            durability -= degradation;
+            durability = Math.max(durability, 0);
+            if (durability == 0) {
+                System.out.println(name + " has broken and can no longer be used.");
+            }
+        }
+    }
+
+    public void repair() {
+        if (durability < maxDurability) {
+            int repairAmount = random.nextInt(20) + 10; // Repair by 10-30 points
+            durability = Math.min(durability + repairAmount, maxDurability);
+            System.out.println(name + " has been repaired by " + repairAmount + " points. Current durability: " + durability + "/" + maxDurability);
+        } else {
+            System.out.println(name + " is already at max durability.");
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "Item{name='" + name + "', type='" + type + "', value=" + value + ", rarity='" + rarity + "', weight=" + weight + ", isUsable=" + isUsable + ", isEquippable=" + isEquippable + ", durability=" + durability + "/" + maxDurability + ", isLegendary=" + isLegendary + "}";
+    }
+}
