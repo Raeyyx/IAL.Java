@@ -2580,3 +2580,251 @@ class Pet {
         System.out.println(name + " assists " + player.name + " in battle, providing " + assistPower + " extra damage.");
     }
 }
+
+// Erweiterungen gemäß den Punkten 7-12
+
+// Fehlerbehandlung in der Player-Klasse verbessert
+public void heal(int amount) {
+    if (health > 0) {
+        health += amount;
+        if (health > getMaxHealth()) {
+            health = getMaxHealth();
+        }
+        System.out.println(name + " heals for " + amount + " health points. Current health: " + health);
+    } else {
+        System.out.println(name + " cannot be healed because they are already dead.");
+    }
+}
+
+// Speichersystem hinzugefügt
+class SaveSystem {
+    public void saveGame(Player player, List<Quest> quests) {
+        System.out.println("Game saved for player: " + player.getName());
+        // Hier könnten Daten in eine Datei geschrieben werden, um den Fortschritt zu speichern.
+    }
+
+    public void loadGame() {
+        System.out.println("Loading saved game...");
+        // Hier könnten gespeicherte Daten geladen und der Spielzustand wiederhergestellt werden.
+    }
+}
+
+// Erweiterte Dungeon-Klasse mit Schwierigkeitsgrad
+class Dungeon {
+    private String name;
+    private List<Enemy> enemies;
+    private int reward;
+    private int levelRequirement;
+    private int difficultyLevel;
+
+    public Dungeon(String name, List<Enemy> enemies, int reward, int levelRequirement, int difficultyLevel) {
+        this.name = name;
+        this.enemies = new ArrayList<>(enemies);
+        this.reward = reward;
+        this.levelRequirement = levelRequirement;
+        this.difficultyLevel = difficultyLevel;
+    }
+
+    public void enter(Player player) {
+        if (player.getLevel() >= levelRequirement) {
+            System.out.println(player.getName() + " enters the dungeon: " + name + " (Level: " + difficultyLevel + ")");
+            for (Enemy enemy : enemies) {
+                while (enemy.isAlive() && player.isAlive()) {
+                    player.attack(enemy);
+                    if (enemy.isAlive()) {
+                        enemy.attack(player);
+                    }
+                }
+            }
+            if (player.isAlive()) {
+                System.out.println(player.getName() + " has cleared the dungeon and earned " + reward + " XP!");
+                player.gainExperience(reward);
+            } else {
+                System.out.println(player.getName() + " has died in the dungeon.");
+            }
+        } else {
+            System.out.println(player.getName() + " does not meet the level requirement (" + levelRequirement + ") to enter the dungeon.");
+        }
+    }
+}
+
+// Erweiterte Pet-Klasse für Zustands-Effekte
+class Pet {
+    private String name;
+    private int loyalty;
+    private String type;
+    private int assistPower;
+    private boolean poisoned;
+
+    public Pet(String name, int loyalty, String type) {
+        this.name = name;
+        this.loyalty = loyalty;
+        this.type = type;
+        this.assistPower = 10 + loyalty / 2;
+        this.poisoned = false;
+    }
+
+    public void follow(Player player) {
+        System.out.println(name + " is loyally following " + player.getName() + ".");
+    }
+
+    public void assist(Player player) {
+        if (poisoned) {
+            System.out.println(name + " is poisoned and cannot assist effectively.");
+        } else {
+            System.out.println(name + " assists " + player.getName() + " in battle, providing " + assistPower + " extra damage.");
+        }
+    }
+
+    public void applyPoison() {
+        poisoned = true;
+        System.out.println(name + " has been poisoned!");
+    }
+
+    public void curePoison() {
+        poisoned = false;
+        System.out.println(name + " has been cured of poison!");
+    }
+}
+
+// Erweiterte Boss-Klasse mit besonderen Fähigkeiten
+class Boss extends Enemy {
+    private boolean enraged;
+    private String specialAbility;
+
+    public Boss(String name, int health, int damage, int x, int y, int speed, String specialAbility) {
+        super(name, health, damage, x, y, speed);
+        this.specialAbility = specialAbility;
+        this.enraged = false;
+    }
+
+    @Override
+    public void attack(Player player) {
+        if (enraged) {
+            System.out.println(name + " attacks in an enraged state, dealing double damage!");
+            player.takeDamage(damage * 2);
+        } else {
+            System.out.println(name + " attacks " + player.getName() + " for " + damage + " damage.");
+            player.takeDamage(damage);
+        }
+    }
+
+    public void enrage() {
+        enraged = true;
+        System.out.println(name + " is now enraged! Damage output doubled.");
+    }
+
+    public void useSpecialAbility(Player player) {
+        System.out.println(name + " uses special ability: " + specialAbility + " on " + player.getName() + "!");
+        player.takeDamage(damage);
+    }
+}
+
+// Erweiterte Guild-Klasse für Gilden-Interaktionen
+class Guild {
+    private String name;
+    private List<Player> members;
+    private int guildLevel;
+    private int experience;
+    private List<Artifact> artifacts;
+
+    public Guild(String name) {
+        this.name = name;
+        this.members = new ArrayList<>();
+        this.guildLevel = 1;
+        this.experience = 0;
+        this.artifacts = new ArrayList<>();
+    }
+
+    public void addMember(Player player) {
+        if (!members.contains(player)) {
+            members.add(player);
+            System.out.println(player.getName() + " has joined the guild " + name + ".");
+        } else {
+            System.out.println(player.getName() + " is already a member of the guild.");
+        }
+    }
+
+    public void hostGuildEvent() {
+        System.out.println("Guild " + name + " is hosting a guild event!");
+        for (Player member : members) {
+            member.gainExperience(100);
+            System.out.println(member.getName() + " has gained 100 XP from the guild event.");
+        }
+        gainExperience(500);
+        awardArtifact();
+    }
+
+    public void gainExperience(int xp) {
+        experience += xp;
+        System.out.println("Guild " + name + " gained " + xp + " experience points. Total: " + experience);
+        if (experience >= guildLevel * 1000) {
+            levelUp();
+        }
+    }
+
+    private void levelUp() {
+        guildLevel++;
+        experience = 0;
+        System.out.println("Guild " + name + " has leveled up! New level: " + guildLevel);
+    }
+
+    private void awardArtifact() {
+        Artifact artifact = new Artifact("Guild Artifact", "A rare item awarded for guild contributions.");
+        artifacts.add(artifact);
+        System.out.println("The guild " + name + " has been awarded an artifact: " + artifact.getName());
+    }
+}
+
+// Erweiterte Fehlerbehandlung im Shop
+class Shop {
+    private String name;
+    private List<Item> itemsForSale;
+
+    public Shop(String name) {
+        this.name = name;
+        this.itemsForSale = new ArrayList<>();
+    }
+
+    public void addItem(Item item) {
+        itemsForSale.add(item);
+    }
+
+    public void showItems() {
+        System.out.println("Welcome to " + name + "! Items for sale:");
+        for (Item item : itemsForSale) {
+            System.out.println("- " + item.getName() + ": " + item.getValue() + " gold");
+        }
+    }
+
+    public void buyItem(String itemName, Player player) {
+        for (Item item : itemsForSale) {
+            if (item.getName().equalsIgnoreCase(itemName)) {
+                if (player.getGold() >= item.getValue()) {
+                    player.addItemToInventory(item);
+                    player.decreaseGold(item.getValue());
+                    itemsForSale.remove(item);
+                    System.out.println(player.getName() + " bought " + item.getName() + " for " + item.getValue() + " gold.");
+                } else {
+                    System.out.println(player.getName() + " doesn't have enough gold to buy " + item.getName());
+                }
+                return;
+            }
+        }
+        System.out.println("Item " + itemName + " not found in shop.");
+    }
+}
+
+class Artifact {
+    private String name;
+    private String description;
+
+    public Artifact(String name, String description) {
+        this.name = name;
+        this.description = description;
+    }
+
+    public String getName() {
+        return name;
+    }
+}
