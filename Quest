@@ -1,0 +1,181 @@
+package rpggame;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Collections;
+
+class QuestClassRpg {
+    private String title;
+    private String description;
+    private boolean isCompleted;
+    private List<String> objectives;
+    private int reward;
+    private String difficultyLevel;
+    private Random random;
+    private LocalDateTime startTime;
+    private LocalDateTime endTime;
+    private int penalty;
+    private int bonusReward;
+
+    public QuestClassRpg(String title, String description, List<String> objectives, int reward) {
+        this.title = title;
+        this.description = description;
+        this.objectives = new ArrayList<>(objectives); // Ensure the list is safely copied
+        this.reward = reward;
+        this.isCompleted = false;
+        this.random = new Random();
+        this.difficultyLevel = generateDifficultyLevel();
+        this.penalty = generatePenalty();
+        this.bonusReward = generateBonusReward();
+    }
+
+    private String generateDifficultyLevel() {
+        String[] levels = {"Easy", "Medium", "Hard", "Expert"};
+        return levels[random.nextInt(levels.length)];
+    }
+
+    private int generatePenalty() {
+        switch (difficultyLevel) {
+            case "Easy":
+                return 5;
+            case "Medium":
+                return 10;
+            case "Hard":
+                return 20;
+            case "Expert":
+                return 30;
+            default:
+                return 0;
+        }
+    }
+
+    private int generateBonusReward() {
+        switch (difficultyLevel) {
+            case "Easy":
+                return 10;
+            case "Medium":
+                return 20;
+            case "Hard":
+                return 40;
+            case "Expert":
+                return 60;
+            default:
+                return 0;
+        }
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public boolean isCompleted() {
+        return isCompleted;
+    }
+
+    public List<String> getObjectives() {
+        return Collections.unmodifiableList(objectives); // Return an unmodifiable list to prevent modification from outside
+    }
+
+    public int getReward() {
+        return reward;
+    }
+
+    public int getBonusReward() {
+        return bonusReward;
+    }
+
+    public String getDifficultyLevel() {
+        return difficultyLevel;
+    }
+
+    public int getPenalty() {
+        return penalty;
+    }
+
+    public void startQuest() {
+        this.startTime = LocalDateTime.now();
+        System.out.println("Quest started: " + title);
+        System.out.println("Description: " + description);
+        System.out.println("Difficulty: " + difficultyLevel);
+        System.out.println("Penalty for failing: " + penalty + " XP");
+        System.out.println("Bonus reward for completion: " + bonusReward + " XP");
+        if (objectives.isEmpty()) {
+            System.out.println("No objectives available.");
+        } else {
+            for (String objective : objectives) {
+                System.out.println("Objective: " + objective);
+            }
+        }
+    }
+
+    public void completeObjective(String objective) {
+        if (objectives.contains(objective)) {
+            objectives.remove(objective);
+            System.out.println("Objective completed: " + objective);
+            if (objectives.isEmpty()) {
+                completeQuest();
+            }
+        } else {
+            System.out.println("Objective not found: " + objective);
+        }
+    }
+
+    public void completeQuest() {
+        if (!isCompleted) {
+            isCompleted = true;
+            this.endTime = LocalDateTime.now();
+            int totalReward = reward + bonusReward;
+            System.out.println("Quest completed: " + title + ". Reward: " + totalReward + " XP");
+            System.out.println("Quest duration: " + getQuestDuration() + " minutes");
+        } else {
+            System.out.println("Quest already completed.");
+        }
+    }
+
+    public String getQuestDuration() {
+        if (startTime != null && endTime != null) {
+            long minutes = java.time.Duration.between(startTime, endTime).toMinutes();
+            return String.valueOf(minutes);
+        } else {
+            return "N/A";
+        }
+    }
+
+    public void abandonQuest() {
+        if (!isCompleted) {
+            System.out.println("Quest abandoned: " + title + ". Penalty: " + penalty + " XP");
+            // Additional logic for applying penalty can be added here.
+        } else {
+            System.out.println("Cannot abandon a completed quest.");
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "QuestClassRpg{title='" + title + "', description='" + description + "', reward=" + reward + ", difficultyLevel='" + difficultyLevel + "', isCompleted=" + isCompleted + "}";
+    }
+}
+
+// Example usage:
+class Main {
+    public static void main(String[] args) {
+        List<String> objectives = new ArrayList<>();
+        objectives.add("Defeat 10 goblins");
+        objectives.add("Rescue the villager");
+        objectives.add("Find the hidden treasure");
+
+        QuestClassRpg quest = new QuestClassRpg("Save the Village", "Defeat the goblins and rescue the villagers.", objectives, 100);
+        quest.startQuest();
+        quest.completeObjective("Defeat 10 goblins");
+        quest.completeObjective("Rescue the villager");
+        quest.completeObjective("Find the hidden treasure");
+        quest.abandonQuest(); // Attempt to abandon after completing objectives
+    }
+}
