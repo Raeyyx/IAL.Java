@@ -2199,3 +2199,384 @@ class Quest {
 // - Added draw methods to Player, Enemy, NPC, and Item classes to render them on the screen.
 // - Added more game mechanics such as mana restoration, item representation, and improved game object initialization.
 // - Enhanced the Enemy AI and Player methods to create more dynamic gameplay.
+
+// Basisklasse Character
+abstract class Character {
+    protected String name;
+    protected int health;
+    protected int mana;
+    protected int x, y;
+    protected int speed;
+    protected boolean isAlive;
+    protected int defense;
+
+    public Character(String name, int health, int mana, int x, int y, int speed) {
+        this.name = name;
+        this.health = health;
+        this.mana = mana;
+        this.x = x;
+        this.y = y;
+        this.speed = speed;
+        this.isAlive = true;
+        this.defense = 0;
+    }
+
+    public void move(int dx, int dy) {
+        x += dx * speed;
+        y += dy * speed;
+    }
+
+    public void takeDamage(int damage) {
+        int effectiveDamage = Math.max(0, damage - defense);
+        health -= effectiveDamage;
+        System.out.println(name + " takes " + effectiveDamage + " damage. Health: " + health);
+        if (health <= 0) {
+            isAlive = false;
+            System.out.println(name + " has died");
+        }
+    }
+
+    public boolean isAlive() {
+        return isAlive;
+    }
+
+    public int getX() {
+        return x;
+    }
+
+    public int getY() {
+        return y;
+    }
+
+    public abstract void attack(Character target);
+
+    public void drawHealthBar(Graphics g) {
+        g.setColor(Color.RED);
+        g.fillRect(x, y - 10, health / 2, 5);
+    }
+}
+
+// Klasse Player erbt von Character
+class Player extends Character implements Drawable {
+    private int stamina;
+    private Inventory inventory;
+    private List<Skill> skills;
+    private PlayerClass playerClass;
+
+    public Player(String name, int x, int y, int speed, PlayerClass playerClass) {
+        super(name, 100, 50, x, y, speed);
+        this.stamina = 100;
+        this.inventory = new Inventory();
+        this.skills = new ArrayList<>();
+        this.playerClass = playerClass;
+        initializeSkills();
+    }
+
+    private void initializeSkills() {
+        switch (playerClass) {
+            case WARRIOR:
+                skills.add(new Skill("Power Strike", 30, 10));
+                skills.add(new ShieldBlock("Shield Block", 0, 0));
+                this.defense = 5;
+                break;
+            case MAGE:
+                skills.add(new Skill("Fireball", 50, 20));
+                skills.add(new MagicSkill("Arcane Blast", 70, 30));
+                this.mana = 100;
+                break;
+            case ARCHER:
+                skills.add(new Skill("Arrow Shot", 25, 5));
+                skills.add(new PiercingArrow("Piercing Arrow", 40, 15));
+                this.speed = 7;
+                break;
+        }
+    }
+
+    @Override
+    public void attack(Character target) {
+        if (isAlive) {
+            target.takeDamage(20);
+            System.out.println(name + " attacked " + target.name + " for 20 damage");
+        }
+    }
+
+    public void useSkill(int skillIndex, Character target) {
+        if (skillIndex >= 0 && skillIndex < skills.size()) {
+            Skill skill = skills.get(skillIndex);
+            if (mana >= skill.getManaCost()) {
+                target.takeDamage(skill.getDamage());
+                mana -= skill.getManaCost();
+                System.out.println(name + " used skill " + skill.getName() + " on " + target.name + " for " + skill.getDamage() + " damage");
+            } else {
+                System.out.println("Not enough mana to use " + skill.getName());
+            }
+        }
+    }
+
+    public void heal(int amount) {
+        health += amount;
+        if (health > 100) {
+            health = 100;
+        }
+        System.out.println(name + " healed by " + amount + ". Current health: " + health);
+    }
+
+    public void restoreMana(int amount) {
+        mana += amount;
+        if (mana > 100) {
+            mana = 100;
+        }
+        System.out.println(name + " restored mana by " + amount + ". Current mana: " + mana);
+    }
+
+    public void addItemToInventory(Item item) {
+        inventory.addItem(item);
+    }
+
+    public void useItemFromInventory(String itemName) {
+        inventory.useItem(itemName, this);
+    }
+
+    public void showInventory() {
+        inventory.listItems();
+    }
+
+    public void showStats() {
+        System.out.println("Player Stats: ");
+        System.out.println("Health: " + health);
+        System.out.println("Mana: " + mana);
+        System.out.println("Stamina: " + stamina);
+    }
+
+    @Override
+    public void draw(Graphics g) {
+        g.setColor(Color.BLUE);
+        g.fillRect(x, y, 30, 30); // Simple representation of the player
+        drawHealthBar(g);
+    }
+}
+
+// Klasse Enemy erbt von Character
+class Enemy extends Character implements Drawable {
+    private String type;
+
+    public Enemy(String name, String type, int x, int y, int speed) {
+        super(name, 50, 0, x, y, speed);
+        this.type = type;
+    }
+
+    @Override
+    public void attack(Character target) {
+        if (isAlive) {
+            target.takeDamage(10);
+            System.out.println(name + " attacked " + target.name + " for 10 damage");
+        }
+    }
+
+    @Override
+    public void draw(Graphics g) {
+        g.setColor(Color.RED);
+        g.fillRect(x, y, 30, 30); // Simple representation of the enemy
+        drawHealthBar(g);
+    }
+}
+
+// Interface Drawable
+interface Drawable {
+    void draw(Graphics g);
+}
+
+// Interface Interactable
+interface Interactable {
+    void interact();
+}
+
+// Klasse NPC implementiert Interactable und Drawable
+class NPC implements Drawable, Interactable {
+    private String name;
+    private int x, y;
+
+    public NPC(String name, int x, int y) {
+        this.name = name;
+        this.x = x;
+        this.y = y;
+    }
+
+    @Override
+    public void interact() {
+        System.out.println("Interacting with NPC: " + name);
+    }
+
+    @Override
+    public void draw(Graphics g) {
+        g.setColor(Color.GREEN);
+        g.fillRect(x, y, 20, 20); // Simple representation of an NPC
+    }
+}
+
+// Klasse Item
+class Item {
+    private String name;
+    private String type; // z.B. "healing", "mana", "weapon"
+    private int value;
+
+    public Item(String name, String type, int value) {
+        this.name = name;
+        this.type = type;
+        this.value = value;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public int getValue() {
+        return value;
+    }
+
+    public void use(Character character) {
+        if (type.equals("healing")) {
+            character.heal(value);
+            System.out.println(name + " used, healing " + value + " health points.");
+        } else if (type.equals("mana")) {
+            character.restoreMana(value);
+            System.out.println(name + " used, restoring " + value + " mana points.");
+        } else {
+            System.out.println(name + " used, but nothing happened.");
+        }
+    }
+}
+
+// Klasse Inventory
+class Inventory {
+    private List<Item> items;
+
+    public Inventory() {
+        items = new ArrayList<>();
+    }
+
+    public void addItem(Item item) {
+        items.add(item);
+        System.out.println(item.getName() + " added to inventory.");
+    }
+
+    public void useItem(String itemName, Character character) {
+        for (Item item : items) {
+            if (item.getName().equals(itemName)) {
+                item.use(character);
+                items.remove(item);
+                return;
+            }
+        }
+        System.out.println("Item " + itemName + " not found in inventory.");
+    }
+
+    public void listItems() {
+        if (items.isEmpty()) {
+            System.out.println("Inventory is empty.");
+        } else {
+            System.out.println("Items in inventory:");
+            for (Item item : items) {
+                System.out.println("- " + item.getName());
+            }
+        }
+    }
+}
+
+// Klasse Skill
+class Skill {
+    private String name;
+    private int damage;
+    private int manaCost;
+
+    public Skill(String name, int damage, int manaCost) {
+        this.name = name;
+        this.damage = damage;
+        this.manaCost = manaCost;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public int getDamage() {
+        return damage;
+    }
+
+    public int getManaCost() {
+        return manaCost;
+    }
+}
+
+// Erweiterte Skillklassen
+class MagicSkill extends Skill {
+    public MagicSkill(String name, int damage, int manaCost) {
+        super(name, damage, manaCost);
+    }
+}
+
+class ShieldBlock extends Skill {
+    public ShieldBlock(String name, int damage, int manaCost) {
+        super(name, damage, manaCost);
+    }
+}
+
+class PiercingArrow extends Skill {
+    public PiercingArrow(String name, int damage, int manaCost) {
+        super(name, damage, manaCost);
+    }
+}
+
+// Enumeration für Spielklassen
+enum PlayerClass {
+    WARRIOR, MAGE, ARCHER;
+}
+
+// Klasse Ally
+class Ally extends Character implements Drawable {
+    public Ally(String name, int health, int mana, int x, int y, int speed) {
+        super(name, health, mana, x, y, speed);
+    }
+
+    @Override
+    public void attack(Character target) {
+        if (isAlive) {
+            target.takeDamage(15);
+            System.out.println(name + " assisted in attack, dealing 15 damage to " + target.name);
+        }
+    }
+
+    @Override
+    public void draw(Graphics g) {
+        g.setColor(Color.CYAN);
+        g.fillRect(x, y, 30, 30); // Simple representation of an ally
+        drawHealthBar(g);
+    }
+}
+
+// Klasse Pet
+class Pet {
+    private String name;
+    private int loyalty;
+    private String type;
+    private int assistPower;
+
+    public Pet(String name, int loyalty, String type) {
+        this.name = name;
+        this.loyalty = loyalty;
+        this.type = type;
+        this.assistPower = 10 + loyalty / 2;
+    }
+
+    public void follow(Player player) {
+        System.out.println(name + " is loyally following " + player.name + ".");
+    }
+
+    public void assist(Player player) {
+        System.out.println(name + " assists " + player.name + " in battle, providing " + assistPower + " extra damage.");
+    }
+}
