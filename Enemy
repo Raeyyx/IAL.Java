@@ -1,0 +1,108 @@
+package rpggame;
+
+import java.awt.*;
+import java.util.HashMap;
+import java.util.Random;
+
+class Enemy {
+    private int health;
+    private int maxHealth;
+    private int damage;
+    private int x, y;
+    private int speed;
+    private HashMap<String, Image> animations;
+    private String name;
+    private boolean isAlive;
+    private Random random;
+
+    public Enemy(HashMap<String, Image> animations, int x, int y, String name) {
+        this.animations = animations;
+        this.maxHealth = 50;
+        this.health = maxHealth;
+        this.damage = 10;
+        this.x = x;
+        this.y = y;
+        this.speed = 2;
+        this.name = name;
+        this.isAlive = true;
+        this.random = new Random();
+    }
+
+    public void takeDamage(int damage) {
+        health -= damage;
+        health = Math.max(0, health); // Ensure health does not go below 0
+        System.out.println(name + " takes " + damage + " damage. Health: " + health);
+        if (health <= 0) {
+            isAlive = false;
+            System.out.println(name + " has been defeated");
+            onDeath();
+        }
+    }
+
+    public void attack(Player player) {
+        if (isAlive) {
+            int actualDamage = damage + random.nextInt(5) - 2; // Adds some variability to damage
+            actualDamage = Math.max(1, actualDamage); // Ensure minimum damage is 1
+            player.takeDamage(actualDamage);
+            System.out.println(name + " attacked Player for " + actualDamage + " damage");
+        }
+    }
+
+    public void update(Player player) {
+        if (isAlive && player.isAlive()) {
+            // Basic AI to move towards the player
+            if (distanceToPlayer(player) > 30) { // Move towards player if distance is greater than 30
+                if (x < player.getX()) {
+                    x += speed;
+                } else if (x > player.getX()) {
+                    x -= speed;
+                }
+
+                if (y < player.getY()) {
+                    y += speed;
+                } else if (y > player.getY()) {
+                    y -= speed;
+                }
+            } else {
+                // Attack the player if close enough
+                attack(player);
+            }
+        }
+    }
+
+    private double distanceToPlayer(Player player) {
+        return Math.sqrt(Math.pow(player.getX() - x, 2) + Math.pow(player.getY() - y, 2));
+    }
+
+    private void onDeath() {
+        // Trigger some effect on enemy death, such as dropping loot or increasing player experience
+        System.out.println(name + " drops loot and grants experience points.");
+    }
+
+    public void draw(Graphics g) {
+        if (isAlive) {
+            g.setColor(Color.RED);
+            g.fillRect(x, y, 30, 30); // Simple representation of the enemy
+            drawHealthBar(g);
+        } else {
+            g.setColor(Color.DARK_GRAY);
+            g.fillRect(x, y, 30, 30); // Representation of a defeated enemy
+        }
+    }
+
+    private void drawHealthBar(Graphics g) {
+        g.setColor(Color.GREEN);
+        int healthBarWidth = (int) ((double) health / maxHealth * 30); // Health bar proportional to enemy's health
+        g.fillRect(x, y - 10, healthBarWidth, 5); // Draw a simple health bar above the enemy
+        g.setColor(Color.BLACK);
+        g.drawRect(x, y - 10, 30, 5); // Outline for the health bar
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public boolean isAlive() {
+        return isAlive;
+    }
+}
