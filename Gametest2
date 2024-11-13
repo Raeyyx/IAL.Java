@@ -1890,3 +1890,312 @@ class RPGGameElements {
         }
     }
 }
+
+import javax.swing.*;
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Random;
+
+public class RPGGame {
+    public static void main(String[] args) {
+        JFrame frame = new JFrame("RPG Game - Sturmwind");
+        GamePanel gamePanel = new GamePanel();
+        frame.add(gamePanel);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(800, 600);
+        frame.setVisible(true);
+    }
+}
+
+class GamePanel extends JPanel {
+    private Player player;
+    private List<Enemy> enemies;
+    private List<Item> items;
+    private List<NPC> npcs;
+    private List<Quest> quests;
+    private Timer timer;
+    private HashMap<String, Image> animations;
+    private Random random;
+
+    public GamePanel() {
+        this.animations = AnimationsLoader.loadAnimations();
+        this.player = new Player(animations);
+        this.enemies = new ArrayList<>();
+        this.items = new ArrayList<>();
+        this.npcs = new ArrayList<>();
+        this.quests = new ArrayList<>();
+        this.random = new Random();
+        initializeGameObjects();
+        this.timer = new Timer(16, e -> updateGame()); // Timer for game updates
+        this.timer.start();
+    }
+
+    private void initializeGameObjects() {
+        // Initialize some enemies, items, and NPCs for the game
+        enemies.add(new Enemy(animations, random.nextInt(800), random.nextInt(600)));
+        items.add(new Item("Health Potion", "Potion", 50));
+        items.add(new Item("Mana Potion", "Mana", 30));
+        npcs.add(new NPC("Village Elder", random.nextInt(800), random.nextInt(600)));
+        quests.add(new Quest("Save the Village", "Defeat the monsters terrorizing the village"));
+    }
+
+    private void updateGame() {
+        player.update();
+        for (Enemy enemy : enemies) {
+            enemy.update(player);
+        }
+        repaint();
+    }
+
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        player.draw(g);
+        for (Enemy enemy : enemies) {
+            enemy.draw(g);
+        }
+        for (Item item : items) {
+            item.draw(g);
+        }
+        for (NPC npc : npcs) {
+            npc.draw(g);
+        }
+    }
+}
+
+class AnimationsLoader {
+    public static HashMap<String, Image> loadAnimations() {
+        // Dummy implementation for loading animations
+        return new HashMap<>();
+    }
+}
+
+class Player {
+    private int health;
+    private int mana;
+    private int stamina;
+    private HashMap<String, Image> animations;
+    private int x, y;
+    private int speed;
+    private boolean isAlive;
+
+    public Player(HashMap<String, Image> animations) {
+        this.animations = animations;
+        this.health = 100;
+        this.mana = 50;
+        this.stamina = 100;
+        this.x = 100;
+        this.y = 100;
+        this.speed = 5;
+        this.isAlive = true;
+    }
+
+    public void move(int dx, int dy) {
+        x += dx * speed;
+        y += dy * speed;
+    }
+
+    public void attack(Enemy enemy) {
+        if (isAlive) {
+            enemy.takeDamage(20);
+            System.out.println("Player attacked " + enemy.getName() + " for 20 damage");
+        }
+    }
+
+    public void takeDamage(int damage) {
+        health -= damage;
+        System.out.println("Player takes " + damage + " damage. Health: " + health);
+        if (health <= 0) {
+            isAlive = false;
+            System.out.println("Player has died");
+        }
+    }
+
+    public void heal(int amount) {
+        health += amount;
+        if (health > 100) {
+            health = 100;
+        }
+        System.out.println("Player healed by " + amount + ". Current health: " + health);
+    }
+
+    public void restoreMana(int amount) {
+        mana += amount;
+        if (mana > 100) {
+            mana = 100;
+        }
+        System.out.println("Player restored mana by " + amount + ". Current mana: " + mana);
+    }
+
+    public void useItem(Item item) {
+        item.use(this);
+    }
+
+    public void update() {
+        if (stamina < 100) {
+            stamina++; // Regenerate stamina over time
+        }
+    }
+
+    public boolean isAlive() {
+        return isAlive;
+    }
+
+    public int getX() {
+        return x;
+    }
+
+    public int getY() {
+        return y;
+    }
+
+    public void draw(Graphics g) {
+        g.setColor(Color.BLUE);
+        g.fillRect(x, y, 30, 30); // Simple representation of the player
+    }
+}
+
+class Enemy {
+    private int health;
+    private int damage;
+    private int x, y;
+    private int speed;
+    private HashMap<String, Image> animations;
+    private String name;
+
+    public Enemy(HashMap<String, Image> animations, int x, int y) {
+        this.animations = animations;
+        this.health = 50;
+        this.damage = 10;
+        this.x = x;
+        this.y = y;
+        this.speed = 2;
+        this.name = "Goblin";
+    }
+
+    public void takeDamage(int damage) {
+        health -= damage;
+        System.out.println(name + " takes " + damage + " damage. Health: " + health);
+        if (health <= 0) {
+            System.out.println(name + " has been defeated");
+        }
+    }
+
+    public void attack(Player player) {
+        if (health > 0) {
+            player.takeDamage(damage);
+            System.out.println(name + " attacked Player for " + damage + " damage");
+        }
+    }
+
+    public void update(Player player) {
+        // Basic AI to move towards the player
+        if (player.isAlive()) {
+            if (x < player.getX()) {
+                x += speed;
+            } else if (x > player.getX()) {
+                x -= speed;
+            }
+
+            if (y < player.getY()) {
+                y += speed;
+            } else if (y > player.getY()) {
+                y -= speed;
+            }
+        }
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void draw(Graphics g) {
+        g.setColor(Color.RED);
+        g.fillRect(x, y, 30, 30); // Simple representation of the enemy
+    }
+}
+
+class Item {
+    private String name;
+    private String type;
+    private int value;
+
+    public Item(String name, String type, int value) {
+        this.name = name;
+        this.type = type;
+        this.value = value;
+    }
+
+    public void use(Player player) {
+        switch (type) {
+            case "Potion":
+                player.heal(value);
+                System.out.println("Using " + name + ", restored " + value + " health points.");
+                break;
+            case "Mana":
+                player.restoreMana(value);
+                System.out.println("Using " + name + ", restored " + value + " mana points.");
+                break;
+            default:
+                System.out.println("Using item: " + name);
+        }
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void draw(Graphics g) {
+        g.setColor(Color.ORANGE);
+        g.fillOval(400, 300, 10, 10); // Simple representation of an item on the ground
+    }
+}
+
+class NPC {
+    private String name;
+    private int x, y;
+
+    public NPC(String name, int x, int y) {
+        this.name = name;
+        this.x = x;
+        this.y = y;
+    }
+
+    public void interact() {
+        System.out.println("Interacting with NPC: " + name);
+    }
+
+    public void draw(Graphics g) {
+        g.setColor(Color.GREEN);
+        g.fillRect(x, y, 20, 20); // Simple representation of an NPC
+    }
+}
+
+class Quest {
+    private String title;
+    private String description;
+    private boolean isCompleted;
+
+    public Quest(String title, String description) {
+        this.title = title;
+        this.description = description;
+        this.isCompleted = false;
+    }
+
+    public void completeQuest() {
+        this.isCompleted = true;
+        System.out.println("Quest completed: " + title);
+    }
+
+    public void showDetails() {
+        System.out.println("Quest: " + title + " - " + description + " (Completed: " + isCompleted + ")");
+    }
+}
+
+// Extensions and improvements added:
+// - GamePanel now initializes more diverse game objects, such as different items.
+// - Added draw methods to Player, Enemy, NPC, and Item classes to render them on the screen.
+// - Added more game mechanics such as mana restoration, item representation, and improved game object initialization.
+// - Enhanced the Enemy AI and Player methods to create more dynamic gameplay.
