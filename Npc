@@ -1,0 +1,300 @@
+package rpggame;
+
+import java.util.Random;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.time.LocalTime;
+import java.util.Map;
+
+class NPC {
+    private String name;
+    private int x;
+    private int y;
+    private String dialog;
+    private boolean hasQuest;
+    private String questDescription;
+    private List<String> inventory;
+    private boolean isMerchant;
+    private Random random;
+    private HashMap<String, Integer> reputationRewards;
+    private boolean isTrainer;
+    private List<String> skillsOffered;
+    private String personality;
+    private boolean hasDailyRoutine;
+    private Map<String, String> dailySchedule;
+    private int inventoryCapacity;
+    private boolean isUniqueEvent;
+    private String uniqueEventDescription;
+    private boolean hasRelationshipWithPlayer;
+    private int relationshipLevel;
+    private boolean reactsToWorldEvents;
+    private String[] relatedNPCs;
+    
+    public NPC(String name, int x, int y, String dialog) {
+        this.name = name;
+        this.x = x;
+        this.y = y;
+        this.dialog = dialog;
+        this.random = new Random();
+        this.hasQuest = random.nextBoolean(); // Randomly decide if NPC has a quest
+        this.questDescription = hasQuest ? generateQuestDescription() : "";
+        this.inventory = generateInventory();
+        this.isMerchant = random.nextBoolean(); // Randomly decide if NPC is a merchant
+        this.isTrainer = random.nextBoolean(); // Randomly decide if NPC is a trainer
+        this.skillsOffered = generateSkillsOffered();
+        this.reputationRewards = new HashMap<>();
+        this.reputationRewards.put("Help me find my lost item!", 10);
+        this.reputationRewards.put("Defeat the monsters that are attacking our village!", 20);
+        this.reputationRewards.put("Gather some herbs for my medicine.", 15);
+        this.reputationRewards.put("Escort me to the nearest town.", 25);
+        this.personality = generatePersonality();
+        this.hasDailyRoutine = random.nextBoolean(); // Randomly decide if NPC has a daily routine
+        this.dailySchedule = hasDailyRoutine ? generateDailySchedule() : new HashMap<>();
+        this.inventoryCapacity = 10;
+        this.isUniqueEvent = random.nextInt(10) == 0; // 10% chance of having a unique event
+        this.uniqueEventDescription = isUniqueEvent ? generateUniqueEventDescription() : "";
+        this.hasRelationshipWithPlayer = random.nextBoolean();
+        this.relationshipLevel = 0;
+        this.reactsToWorldEvents = random.nextBoolean();
+        this.relatedNPCs = generateRelatedNPCs();
+    }
+
+    private String generateQuestDescription() {
+        String[] questOptions = {
+            "Help me find my lost item!",
+            "Defeat the monsters that are attacking our village!",
+            "Gather some herbs for my medicine.",
+            "Escort me to the nearest town."
+        };
+        return questOptions[random.nextInt(questOptions.length)];
+    }
+
+    private List<String> generateInventory() {
+        List<String> items = new ArrayList<>();
+        if (isMerchant) {
+            String[] possibleItems = {"Potion", "Mana Elixir", "Sword", "Shield", "Herbs"};
+            int numItems = random.nextInt(4) + 1; // Randomly select 1-4 items
+            for (int i = 0; i < numItems; i++) {
+                if (items.size() < inventoryCapacity) {
+                    items.add(possibleItems[random.nextInt(possibleItems.length)]);
+                }
+            }
+        }
+        return items;
+    }
+
+    private List<String> generateSkillsOffered() {
+        List<String> skills = new ArrayList<>();
+        if (isTrainer) {
+            String[] possibleSkills = {"Swordsmanship", "Archery", "Alchemy", "Magic"};
+            int numSkills = random.nextInt(3) + 1; // Randomly select 1-3 skills
+            for (int i = 0; i < numSkills; i++) {
+                skills.add(possibleSkills[random.nextInt(possibleSkills.length)]);
+            }
+        }
+        return skills;
+    }
+
+    private String generatePersonality() {
+        String[] personalityTypes = {"Friendly", "Grumpy", "Suspicious", "Cheerful", "Cowardly", "Brave"};
+        return personalityTypes[random.nextInt(personalityTypes.length)];
+    }
+
+    private Map<String, String> generateDailySchedule() {
+        Map<String, String> schedule = new HashMap<>();
+        schedule.put("08:00", "Opening shop");
+        schedule.put("12:00", "Lunch break");
+        schedule.put("15:00", "Gathering supplies");
+        schedule.put("18:00", "Closing shop");
+        schedule.put("20:00", "Relaxing at home");
+        return schedule;
+    }
+
+    private String generateUniqueEventDescription() {
+        String[] uniqueEvents = {
+            "A rare monster is attacking the village!",
+            "A treasure map has been found nearby.",
+            "A mysterious stranger has arrived in town.",
+            "A festival is about to start!"
+        };
+        return uniqueEvents[random.nextInt(uniqueEvents.length)];
+    }
+
+    private String[] generateRelatedNPCs() {
+        String[] npcNames = {"John", "Maria", "Leo", "Sophia", "Eldric"};
+        int numRelated = random.nextInt(3) + 1;
+        String[] related = new String[numRelated];
+        for (int i = 0; i < numRelated; i++) {
+            related[i] = npcNames[random.nextInt(npcNames.length)];
+        }
+        return related;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public int getX() {
+        return x;
+    }
+
+    public int getY() {
+        return y;
+    }
+
+    public boolean hasQuest() {
+        return hasQuest;
+    }
+
+    public String getQuestDescription() {
+        return questDescription;
+    }
+
+    public boolean isMerchant() {
+        return isMerchant;
+    }
+
+    public List<String> getInventory() {
+        return inventory;
+    }
+
+    public boolean isTrainer() {
+        return isTrainer;
+    }
+
+    public List<String> getSkillsOffered() {
+        return skillsOffered;
+    }
+
+    public String getPersonality() {
+        return personality;
+    }
+
+    public boolean hasDailyRoutine() {
+        return hasDailyRoutine;
+    }
+
+    public Map<String, String> getDailySchedule() {
+        return dailySchedule;
+    }
+
+    public boolean isUniqueEvent() {
+        return isUniqueEvent;
+    }
+
+    public String getUniqueEventDescription() {
+        return uniqueEventDescription;
+    }
+
+    public int getRelationshipLevel() {
+        return relationshipLevel;
+    }
+
+    public String[] getRelatedNPCs() {
+        return relatedNPCs;
+    }
+
+    public boolean reactsToWorldEvents() {
+        return reactsToWorldEvents;
+    }
+
+    public void improveRelationship(int points) {
+        this.relationshipLevel += points;
+        System.out.println(name + "'s relationship level with the player increased by " + points + " points. Current level: " + relationshipLevel);
+    }
+
+    public void interact() {
+        System.out.println(name + ": " + dialog);
+        System.out.println("Personality: " + personality);
+        if (hasQuest) {
+            System.out.println(name + " also has a quest: " + questDescription);
+        }
+        if (isMerchant) {
+            System.out.println(name + " has items for sale: " + inventory);
+        }
+        if (isTrainer) {
+            System.out.println(name + " can train you in the following skills: " + skillsOffered);
+        }
+        if (isUniqueEvent) {
+            System.out.println("Special event: " + uniqueEventDescription);
+        }
+        if (hasRelationshipWithPlayer) {
+            System.out.println("Relationship level with player: " + relationshipLevel);
+        }
+        if (relatedNPCs.length > 0) {
+            System.out.println("Related NPCs: ");
+            for (String npc : relatedNPCs) {
+                System.out.println("- " + npc);
+            }
+        }
+    }
+
+    public void completeQuest(Player player) {
+        if (hasQuest) {
+            int reputationGain = reputationRewards.getOrDefault(questDescription, 0);
+            player.increaseReputation(reputationGain);
+            improveRelationship(5); // Improve relationship after completing a quest
+            System.out.println(name + " thanks you for completing the quest and rewards you with " + reputationGain + " reputation points.");
+            hasQuest = false; // Quest is now completed
+            questDescription = "";
+        } else {
+            System.out.println(name + " has no quest for you to complete.");
+        }
+    }
+
+    public void moveTo(int newX, int newY) {
+        this.x = newX;
+        this.y = newY;
+        System.out.println(name + " has moved to new position: (" + x + ", " + y + ")");
+    }
+
+    public void wander() {
+        int dx = random.nextInt(11) - 5; // Random movement between -5 and 5 for x
+        int dy = random.nextInt(11) - 5; // Random movement between -5 and 5 for y
+        moveTo(x + dx, y + dy);
+        System.out.println(name + " is wandering to a new position: (" + x + ", " + y + ")");
+    }
+
+    public void followDailyRoutine() {
+        LocalTime currentTime = LocalTime.now();
+        for (Map.Entry<String, String> entry : dailySchedule.entrySet()) {
+            LocalTime scheduleTime = LocalTime.parse(entry.getKey());
+            if (currentTime.isAfter(scheduleTime) && currentTime.isBefore(scheduleTime.plusMinutes(30))) {
+                System.out.println(name + " is currently: " + entry.getValue());
+            }
+        }
+    }
+
+    public void trade(Player player, String itemName) {
+        if (!isMerchant) {
+            System.out.println(name + " is not a merchant and cannot trade.");
+            return;
+        }
+        if (inventory.contains(itemName)) {
+            System.out.println("Trading " + itemName + " with " + player.getName());
+            inventory.remove(itemName);
+            player.addItemToInventory(itemName);
+        } else {
+            System.out.println(name + " does not have " + itemName + " for sale.");
+        }
+    }
+
+    public void train(Player player, String skill) {
+        if (!isTrainer) {
+            System.out.println(name + " is not a trainer and cannot train skills.");
+            return;
+        }
+        if (skillsOffered.contains(skill)) {
+            System.out.println(name + " is training " + player.getName() + " in " + skill + ".");
+            player.learnSkill(skill);
+        } else {
+            System.out.println(name + " cannot train you in " + skill + ".");
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "NPC{name='" + name + "', position=(" + x + ", " + y + "), dialog='" + dialog + "', hasQuest=" + hasQuest + ", isMerchant=" + isMerchant + ", inventory=" + inventory + ", isTrainer=" + isTrainer + ", skillsOffered=" + skillsOffered + ", personality='" + personality + "', hasDailyRoutine=" + hasDailyRoutine + ", uniqueEventDescription='" + uniqueEventDescription + "'}";
+    }
+}
