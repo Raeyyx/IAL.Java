@@ -1,0 +1,112 @@
+package rpggame;
+
+import javax.swing.*;
+import java.awt.*;
+import java.util.HashMap;
+
+class Player {
+    private int health;
+    private int mana;
+    private int stamina;
+    private HashMap<String, Image> animations;
+    private int x, y;
+    private int speed;
+    private boolean isAlive;
+
+    public Player(HashMap<String, Image> animations) {
+        this.animations = animations;
+        this.health = 100;
+        this.mana = 50;
+        this.stamina = 100;
+        this.x = 100;
+        this.y = 100;
+        this.speed = 5;
+        this.isAlive = true;
+    }
+
+    public void move(int dx, int dy) {
+        x += dx * speed;
+        y += dy * speed;
+        System.out.println("Player moved to position: (" + x + ", " + y + ")");
+    }
+
+    public void attack(Enemy enemy) {
+        if (isAlive) {
+            int damage = 20;
+            enemy.takeDamage(damage);
+            System.out.println("Player attacked " + enemy.getName() + " for " + damage + " damage");
+        }
+    }
+
+    public void takeDamage(int damage) {
+        health -= damage;
+        System.out.println("Player takes " + damage + " damage. Health: " + health);
+        if (health <= 0) {
+            isAlive = false;
+            System.out.println("Player has died");
+        }
+    }
+
+    public void heal(int amount) {
+        if (isAlive) {
+            health += amount;
+            if (health > 100) {
+                health = 100;
+            }
+            System.out.println("Player healed by " + amount + ". Current health: " + health);
+        } else {
+            System.out.println("Player cannot be healed because they are dead.");
+        }
+    }
+
+    public void restoreMana(int amount) {
+        if (isAlive) {
+            mana += amount;
+            if (mana > 100) {
+                mana = 100;
+            }
+            System.out.println("Player restored mana by " + amount + ". Current mana: " + mana);
+        } else {
+            System.out.println("Player cannot restore mana because they are dead.");
+        }
+    }
+
+    public void useItem(Item item) {
+        if (isAlive) {
+            item.use(this);
+        } else {
+            System.out.println("Player cannot use items because they are dead.");
+        }
+    }
+
+    public void update() {
+        if (isAlive) {
+            if (stamina < 100) {
+                stamina++; // Regenerate stamina over time
+                System.out.println("Player stamina increased to: " + stamina);
+            }
+        }
+    }
+
+    public boolean isAlive() {
+        return isAlive;
+    }
+
+    public int getX() {
+        return x;
+    }
+
+    public int getY() {
+        return y;
+    }
+
+    public void draw(Graphics g) {
+        if (isAlive) {
+            g.setColor(Color.BLUE);
+            g.fillRect(x, y, 30, 30); // Simple representation of the player
+        } else {
+            g.setColor(Color.GRAY);
+            g.fillRect(x, y, 30, 30); // Representation of the dead player
+        }
+    }
+}
