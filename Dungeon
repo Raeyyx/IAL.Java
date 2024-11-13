@@ -1,0 +1,288 @@
+package rpggame;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
+class DungeonClassRpg {
+    private String name;
+    private int levelRequirement;
+    private List<Enemy> enemies;
+    private Boss boss;
+    private boolean isCleared;
+    private String difficultyLevel;
+    private int treasureCount;
+    private Random random;
+    private LocalDateTime startTime;
+    private LocalDateTime endTime;
+    private boolean hasHiddenTreasure;
+
+    public DungeonClassRpg(String name, int levelRequirement, List<Enemy> enemies, Boss boss, int treasureCount) {
+        this.name = name;
+        this.levelRequirement = levelRequirement;
+        this.enemies = new ArrayList<>(enemies);
+        this.boss = boss;
+        this.treasureCount = treasureCount;
+        this.isCleared = false;
+        this.random = new Random();
+        this.difficultyLevel = generateDifficultyLevel();
+        this.hasHiddenTreasure = random.nextBoolean(); // Randomly decide if there is hidden treasure
+    }
+
+    private String generateDifficultyLevel() {
+        String[] levels = {"Easy", "Medium", "Hard", "Expert"};
+        return levels[random.nextInt(levels.length)];
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public int getLevelRequirement() {
+        return levelRequirement;
+    }
+
+    public List<Enemy> getEnemies() {
+        return Collections.unmodifiableList(enemies);
+    }
+
+    public Boss getBoss() {
+        return boss;
+    }
+
+    public boolean isCleared() {
+        return isCleared;
+    }
+
+    public String getDifficultyLevel() {
+        return difficultyLevel;
+    }
+
+    public int getTreasureCount() {
+        return treasureCount;
+    }
+
+    public void enterDungeon(int playerLevel) {
+        if (playerLevel >= levelRequirement) {
+            this.startTime = LocalDateTime.now();
+            System.out.println("Entered the dungeon: " + name);
+            System.out.println("Difficulty Level: " + difficultyLevel);
+            for (Enemy enemy : enemies) {
+                System.out.println("Encountered enemy: " + enemy.getName() + " with health: " + enemy.getHealth());
+            }
+            System.out.println("Boss of the dungeon: " + boss.getName() + " with health: " + boss.getHealth());
+        } else {
+            System.out.println("Level requirement not met. Dungeon level requirement: " + levelRequirement);
+        }
+    }
+
+    public void fightEnemy(String enemyName, int damage) {
+        for (Enemy enemy : enemies) {
+            if (enemy.getName().equals(enemyName)) {
+                enemy.takeDamage(damage);
+                if (enemy.getHealth() <= 0) {
+                    System.out.println("Enemy " + enemyName + " defeated!");
+                    enemies.remove(enemy);
+                } else {
+                    System.out.println("Enemy " + enemyName + " has " + enemy.getHealth() + " health remaining.");
+                }
+                return;
+            }
+        }
+        System.out.println("Enemy " + enemyName + " not found or already defeated.");
+    }
+
+    public void fightBoss(int damage) {
+        if (!isCleared) {
+            boss.reduceHealth(damage);
+            if (boss.getHealth() <= 0) {
+                defeatBoss();
+            } else {
+                boss.performPhaseAction(); // Boss changes behavior based on health
+                System.out.println("Boss " + boss.getName() + " has " + boss.getHealth() + " health remaining.");
+            }
+        } else {
+            System.out.println("The boss has already been defeated.");
+        }
+    }
+
+    public void defeatBoss() {
+        if (!isCleared) {
+            this.isCleared = true;
+            this.endTime = LocalDateTime.now();
+            System.out.println("Boss defeated: " + boss.getName());
+            System.out.println("Dungeon cleared: " + name);
+            System.out.println("Treasure found: " + treasureCount);
+            if (hasHiddenTreasure) {
+                System.out.println("You have found a hidden treasure chest!");
+            }
+            System.out.println("Dungeon duration: " + getDungeonDuration() + " minutes");
+            System.out.println("Loot obtained: " + boss.getLootWithDropChance());
+        } else {
+            System.out.println("Dungeon already cleared.");
+        }
+    }
+
+    public String getDungeonDuration() {
+        if (startTime != null && endTime != null) {
+            long minutes = java.time.Duration.between(startTime, endTime).toMinutes();
+            return String.valueOf(minutes);
+        } else {
+            return "N/A";
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "DungeonClassRpg{name='" + name + "', levelRequirement=" + levelRequirement + ", difficultyLevel='" + difficultyLevel + "', isCleared=" + isCleared + "}";
+    }
+}
+
+class Boss {
+    private String name;
+    private int health;
+    private List<Loot> lootTable;
+    private Random random;
+    private boolean enraged;
+    private String specialAbility;
+
+    public Boss(String name, int health, List<Loot> lootTable) {
+        this.name = name;
+        this.health = health;
+        this.lootTable = new ArrayList<>(lootTable);
+        this.random = new Random();
+        this.enraged = false;
+        this.specialAbility = "Flame Breath";
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public int getHealth() {
+        return health;
+    }
+
+    public String getLootWithDropChance() {
+        StringBuilder lootObtained = new StringBuilder();
+        for (Loot loot : lootTable) {
+            if (random.nextDouble() <= loot.getDropChance()) {
+                lootObtained.append(loot.getName()).append(" (" + loot.getRarity() + ")\n");
+            }
+        }
+        return lootObtained.length() > 0 ? lootObtained.toString() : "No loot obtained.";
+    }
+
+    public void reduceHealth(int damage) {
+        this.health -= damage;
+        if (this.health <= health / 2 && !enraged) {
+            enrage();
+        }
+    }
+
+    private void enrage() {
+        enraged = true;
+        System.out.println(name + " is now enraged! Damage doubled.");
+    }
+
+    public void performPhaseAction() {
+        if (enraged) {
+            System.out.println(name + " uses " + specialAbility + "! It's extremely powerful in the enraged state!");
+        } else {
+            System.out.println(name + " attacks normally.");
+        }
+    }
+}
+
+class Loot {
+    private String name;
+    private String rarity;
+    private double dropChance;
+    private String effect;
+
+    public Loot(String name, String rarity, double dropChance, String effect) {
+        this.name = name;
+        this.rarity = rarity;
+        this.dropChance = dropChance;
+        this.effect = effect;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getRarity() {
+        return rarity;
+    }
+
+    public double getDropChance() {
+        return dropChance;
+    }
+
+    public String getEffect() {
+        return effect;
+    }
+}
+
+class Enemy {
+    private String name;
+    private int health;
+    private int damage;
+    private String specialAbility;
+
+    public Enemy(String name, int health, int damage, String specialAbility) {
+        this.name = name;
+        this.health = health;
+        this.damage = damage;
+        this.specialAbility = specialAbility;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public int getHealth() {
+        return health;
+    }
+
+    public void takeDamage(int damage) {
+        this.health -= damage;
+    }
+
+    public int getDamage() {
+        return damage;
+    }
+
+    public void performSpecialAbility() {
+        System.out.println(name + " uses " + specialAbility + "!");
+    }
+}
+
+// Example usage:
+class MainDungeon {
+    public static void main(String[] args) {
+        List<Enemy> enemies = new ArrayList<>();
+        enemies.add(new Enemy("Goblin", 100, 15, "Poisonous Strike"));
+        enemies.add(new Enemy("Orc", 150, 25, "Berserk Smash"));
+        enemies.add(new Enemy("Troll", 200, 30, "Regeneration"));
+
+        List<Loot> lootTable = new ArrayList<>();
+        lootTable.add(new Loot("Excalibur, Blade of Kings", "Legendary", 0.1, "Increases attack damage by 50%"));
+        lootTable.add(new Loot("Dragon's Heart", "Epic", 0.2, "Restores 100 health over time"));
+        lootTable.add(new Loot("Golden Crown of the Fallen", "Rare", 0.3, "Increases defense by 20"));
+        lootTable.add(new Loot("Silver Chalice of Fortune", "Uncommon", 0.5, "Increases gold drops by 30%"));
+        lootTable.add(new Loot("Bag of Gold Coins", "Common", 0.8, "Contains 100 gold coins"));
+
+        Boss boss = new Boss("Ancient Dragon", 500, lootTable);
+        DungeonClassRpg dungeon = new DungeonClassRpg("Dark Cave", 5, enemies, boss, 3);
+        dungeon.enterDungeon(6); // Player level 6
+        dungeon.fightEnemy("Goblin", 30);
+        dungeon.fightEnemy("Orc", 60);
+        dungeon.fightBoss(150);
+        dungeon.defeatBoss();
+    }
+}
