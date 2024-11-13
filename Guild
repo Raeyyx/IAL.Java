@@ -1,0 +1,323 @@
+package rpggame;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+import java.util.stream.Collectors;
+
+class GuildClassRpg {
+    private String guildName;
+    private String leader;
+    private int guildLevel;
+    private int guildExperience;
+    private List<PlayerClass> members;
+    private List<GuildQuest> guildQuests;
+    private List<String> ranks;
+    private int gold;
+    private List<GuildAchievement> achievements;
+    private GuildBank guildBank;
+
+    public GuildClassRpg(String guildName, String leader) {
+        this.guildName = guildName;
+        this.leader = leader;
+        this.guildLevel = 1;
+        this.guildExperience = 0;
+        this.members = new ArrayList<>();
+        this.guildQuests = new ArrayList<>();
+        this.ranks = new ArrayList<>();
+        this.gold = 0;
+        this.achievements = new ArrayList<>();
+        this.guildBank = new GuildBank();
+        initializeRanks();
+    }
+
+    private void initializeRanks() {
+        ranks.add("Recruit");
+        ranks.add("Member");
+        ranks.add("Veteran");
+        ranks.add("Officer");
+        ranks.add("Leader");
+    }
+
+    public void addMember(PlayerClass player) {
+        if (!members.contains(player)) {
+            members.add(player);
+            System.out.println(player.getName() + " has joined the guild: " + guildName);
+        } else {
+            System.out.println(player.getName() + " is already a member of the guild.");
+        }
+    }
+
+    public void removeMember(PlayerClass player) {
+        if (members.contains(player)) {
+            members.remove(player);
+            System.out.println(player.getName() + " has left the guild: " + guildName);
+        } else {
+            System.out.println(player.getName() + " is not a member of the guild.");
+        }
+    }
+
+    public void assignRank(PlayerClass player, String rank) {
+        if (members.contains(player) && ranks.contains(rank)) {
+            player.setRank(rank);
+            System.out.println(player.getName() + " has been assigned the rank of " + rank + " in the guild: " + guildName);
+        } else {
+            System.out.println("Either the player is not a member or the rank is invalid.");
+        }
+    }
+
+    public void addGuildQuest(GuildQuest quest) {
+        guildQuests.add(quest);
+        System.out.println("New guild quest added: " + quest.getTitle());
+    }
+
+    public void completeGuildQuest(GuildQuest quest) {
+        if (guildQuests.contains(quest)) {
+            guildQuests.remove(quest);
+            guildExperience += quest.getReward();
+            gold += quest.getReward() / 2; // Adding gold as a reward for completing quests
+            guildBank.depositGold(quest.getReward() / 4); // Add a portion to the guild bank
+            System.out.println("Guild quest completed: " + quest.getTitle() + ". Guild XP earned: " + quest.getReward() + ", Gold earned: " + (quest.getReward() / 2) + ", Gold deposited to guild bank: " + (quest.getReward() / 4));
+            levelUpCheck();
+        } else {
+            System.out.println("Quest not found in the guild's quest list.");
+        }
+    }
+
+    private void levelUpCheck() {
+        if (guildExperience >= guildLevel * 1000) {
+            guildLevel++;
+            guildExperience = 0;
+            System.out.println("Congratulations! The guild " + guildName + " has leveled up to level " + guildLevel);
+            unlockAchievement("Guild Level Up to " + guildLevel);
+        }
+    }
+
+    public void donateGold(PlayerClass player, int amount) {
+        if (amount > 0) {
+            gold += amount;
+            System.out.println(player.getName() + " has donated " + amount + " gold to the guild.");
+        } else {
+            System.out.println("Invalid donation amount.");
+        }
+    }
+
+    public void unlockAchievement(String achievementTitle) {
+        GuildAchievement achievement = new GuildAchievement(achievementTitle);
+        achievements.add(achievement);
+        System.out.println("Achievement unlocked: " + achievementTitle);
+    }
+
+    public void organizeGuildEvent(String eventName) {
+        System.out.println("Guild " + guildName + " is organizing an event: " + eventName);
+        for (PlayerClass member : members) {
+            member.gainExperience(100);
+            System.out.println(member.getName() + " has gained 100 XP from the event.");
+        }
+        gainGuildExperience(500);
+    }
+
+    public void gainGuildExperience(int xp) {
+        guildExperience += xp;
+        levelUpCheck();
+    }
+
+    public void showMembers() {
+        System.out.println("Guild Members of " + guildName + ":");
+        members.forEach(member -> System.out.println("- " + member.getName() + " (Rank: " + member.getRank() + ", Level: " + member.getLevel() + ")"));
+    }
+
+    public void showBankStatus() {
+        System.out.println(guildBank);
+    }
+
+    public void withdrawFromGuildBank(int amount) {
+        guildBank.withdrawGold(amount);
+    }
+
+    public void storeItemInGuildBank(Item item) {
+        guildBank.storeItem(item);
+    }
+
+    public void removeItemFromGuildBank(Item item) {
+        guildBank.removeItem(item);
+    }
+
+    @Override
+    public String toString() {
+        return "GuildClassRpg{guildName='" + guildName + "', leader='" + leader + "', guildLevel=" + guildLevel + ", guildExperience=" + guildExperience + ", membersCount=" + members.size() + ", gold=" + gold + "}";
+    }
+}
+
+class GuildQuest {
+    private String title;
+    private String description;
+    private int reward;
+
+    public GuildQuest(String title, String description, int reward) {
+        this.title = title;
+        this.description = description;
+        this.reward = reward;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public int getReward() {
+        return reward;
+    }
+}
+
+class GuildAchievement {
+    private String title;
+    private String dateUnlocked;
+
+    public GuildAchievement(String title) {
+        this.title = title;
+        this.dateUnlocked = java.time.LocalDate.now().toString();
+    }
+
+    @Override
+    public String toString() {
+        return "GuildAchievement{title='" + title + "', dateUnlocked='" + dateUnlocked + "'}";
+    }
+}
+
+class GuildBank {
+    private int gold;
+    private List<Item> storedItems;
+
+    public GuildBank() {
+        this.gold = 0;
+        this.storedItems = new ArrayList<>();
+    }
+
+    public void depositGold(int amount) {
+        if (amount > 0) {
+            gold += amount;
+            System.out.println("Deposited " + amount + " gold to the guild bank. Current balance: " + gold);
+        } else {
+            System.out.println("Invalid deposit amount.");
+        }
+    }
+
+    public void withdrawGold(int amount) {
+        if (amount > 0 && amount <= gold) {
+            gold -= amount;
+            System.out.println("Withdrew " + amount + " gold from the guild bank. Current balance: " + gold);
+        } else {
+            System.out.println("Invalid withdrawal amount or insufficient funds.");
+        }
+    }
+
+    public void storeItem(Item item) {
+        storedItems.add(item);
+        System.out.println(item.getName() + " has been stored in the guild bank.");
+    }
+
+    public void removeItem(Item item) {
+        if (storedItems.contains(item)) {
+            storedItems.remove(item);
+            System.out.println(item.getName() + " has been removed from the guild bank.");
+        } else {
+            System.out.println("Item not found in the guild bank.");
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "GuildBank{gold=" + gold + ", storedItems=" + storedItems.stream().map(Item::getName).collect(Collectors.joining(", ")) + "}";
+    }
+}
+
+class Item {
+    private String name;
+    private String type;
+    private int value;
+
+    public Item(String name, String type, int value) {
+        this.name = name;
+        this.type = type;
+        this.value = value;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public int getValue() {
+        return value;
+    }
+}
+
+// Example usage:
+class MainGuild {
+    public static void main(String[] args) {
+        GuildClassRpg guild = new GuildClassRpg("Warriors of Light", "Arthur");
+
+        PlayerClass player1 = new PlayerClass("Lancelot", 5);
+        PlayerClass player2 = new PlayerClass("Gawain", 3);
+
+        guild.addMember(player1);
+        guild.addMember(player2);
+
+        guild.assignRank(player1, "Officer");
+
+        GuildQuest quest = new GuildQuest("Defeat the Shadow Dragon", "Slay the Shadow Dragon to protect the kingdom.", 500);
+        guild.addGuildQuest(quest);
+        guild.completeGuildQuest(quest);
+
+        guild.donateGold(player1, 200);
+
+        guild.organizeGuildEvent("Guild Training Day");
+        guild.showMembers();
+
+        Item sword = new Item("Enchanted Sword", "Weapon", 300);
+        guild.storeItemInGuildBank(sword);
+        guild.showBankStatus();
+
+        System.out.println(guild);
+    }
+}
+
+class PlayerClass {
+    private String name;
+    private int level;
+    private String rank;
+
+    public PlayerClass(String name, int level) {
+        this.name = name;
+        this.level = level;
+        this.rank = "Recruit";
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public int getLevel() {
+        return level;
+    }
+
+    public String getRank() {
+        return rank;
+    }
+
+    public void setRank(String rank) {
+        this.rank = rank;
+    }
+
+    public void gainExperience(int xp) {
+        level += xp / 100;
+        System.out.println(name + " has gained " + xp + " experience points. Current level: " + level);
+    }
+}
