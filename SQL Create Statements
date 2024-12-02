@@ -127,3 +127,54 @@ INSERT INTO Mitarbeiter (MitarbeiterID, Name, Adresse, TelNr, Email, GebDatum) V
 (2, 'Lisa Klein', 'Kleinweg 4, 44444 Großstadt', '0987612345', 'l.klein@hotel.com', '1992-11-30'),
 (3, 'Paul Meier', 'Gartenstraße 21, 55555 Dorf', '01678901234', 'p.meier@hotel.com', '1987-06-18'),
 (4, 'Sabine Braun', 'Bergstraße 7, 66666 Alpendorf', '01567890123', 's.braun@hotel.com', '1995-10-01');
+
+-- 1. Was ist der durchschnittliche Zimmerpreis
+SELECT AVG(PreisProNacht) AS DurchschnittlicherZimmerpreis
+FROM Zimmer;
+
+-- 2. Geben Sie die ReservierungsID für alle Gäste, deren Name mit "M" anfängt, aus
+SELECT Reservierungen.ReservierungsID
+FROM Reservierungen
+JOIN Gaeste ON Reservierungen.GastID = Gaeste.GastID
+WHERE Gaeste.Name LIKE 'M%';
+
+-- 3. Geben Sie den Namen des Gastes und seine gebuchten Dienstleistungen aus
+SELECT Gaeste.Name, Dienstleistungen.Name AS Dienstleistung
+FROM Reservierungen
+JOIN Rechnungen ON Reservierungen.ReservierungsID = Rechnungen.ReservierungsID
+JOIN Rechnungen_Dienstleistungen ON Rechnungen.RechnungsID = Rechnungen_Dienstleistungen.RechnungsID
+JOIN Dienstleistungen ON Rechnungen_Dienstleistungen.DienstleistungsID = Dienstleistungen.DienstleistungsID
+JOIN Gaeste ON Reservierungen.GastID = Gaeste.GastID;
+
+-- 4. Geben Sie alle Namen und Preise von Dienstleistungen unter 20 Euro aus
+SELECT Name, Preis
+FROM Dienstleistungen
+WHERE Preis < 20;
+
+-- 5. Geben Sie die verschiedenen Zahlungsmethoden der Gäste aus
+SELECT DISTINCT Zahlungsart
+FROM Zahlungen;
+
+-- 6. Geben Sie aus, welche Gäste eine Suite gebucht haben
+SELECT DISTINCT Gaeste.Name
+FROM Belegungen
+JOIN Reservierungen ON Belegungen.ReservierungsID = Reservierungen.ReservierungsID
+JOIN Zimmer ON Belegungen.ZimmerID = Zimmer.ZimmerID
+JOIN Gaeste ON Reservierungen.GastID = Gaeste.GastID
+WHERE Zimmer.ZimmerTyp = 'Suite';
+
+-- 7. Geben Sie die Preise pro Nacht der Zimmer aller Gäste an, die eine Yahoo-Email besitzen
+SELECT DISTINCT Zimmer.PreisProNacht
+FROM Belegungen
+JOIN Reservierungen ON Belegungen.ReservierungsID = Reservierungen.ReservierungsID
+JOIN Zimmer ON Belegungen.ZimmerID = Zimmer.ZimmerID
+JOIN Gaeste ON Reservierungen.GastID = Gaeste.GastID
+WHERE Gaeste.Email LIKE '%@yahoo.%';
+
+-- 8a. Geben Sie den gesamten Rechnungsbetrag aus
+SELECT SUM(Gesamtbetrag) AS GesamterRechnungsbetrag
+FROM Rechnungen;
+
+-- 8b. Wie hoch ist eine Rechnung im Durchschnitt?
+SELECT AVG(Gesamtbetrag) AS DurchschnittlicherRechnungsbetrag
+FROM Rechnungen;
