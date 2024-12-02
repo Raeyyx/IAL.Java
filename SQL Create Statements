@@ -1,0 +1,129 @@
+CREATE TABLE Gaeste (
+    GastID INT PRIMARY KEY,
+    Name VARCHAR(100),
+    Adresse VARCHAR(200),
+    TelNr VARCHAR(20),
+    Email VARCHAR(100),
+    GebDatum DATE
+);
+
+CREATE TABLE Zimmer (
+    ZimmerID INT PRIMARY KEY,
+    PreisProNacht DECIMAL(10, 2),
+    ZimmerTyp VARCHAR(50),
+    Verfuegbarkeit BOOLEAN
+);
+
+CREATE TABLE Reservierungen (
+    ReservierungsID INT PRIMARY KEY,
+    CheckIn DATE,
+    CheckOut DATE,
+    GaesteAnzahl INT,
+    GastID INT,
+    FOREIGN KEY (GastID) REFERENCES Gaeste(GastID)
+);
+
+CREATE TABLE Belegungen (
+    BelegungsID INT PRIMARY KEY,
+    ReservierungsID INT,
+    ZimmerID INT,
+    FOREIGN KEY (ReservierungsID) REFERENCES Reservierungen(ReservierungsID),
+    FOREIGN KEY (ZimmerID) REFERENCES Zimmer(ZimmerID)
+);
+
+CREATE TABLE Dienstleistungen (
+    DienstleistungsID INT PRIMARY KEY,
+    Name VARCHAR(100),
+    Preis DECIMAL(10, 2)
+);
+
+CREATE TABLE Rechnungen (
+    RechnungsID INT PRIMARY KEY,
+    Rechnungsdatum DATE,
+    Gesamtbetrag DECIMAL(10, 2),
+    ReservierungsID INT,
+    FOREIGN KEY (ReservierungsID) REFERENCES Reservierungen(ReservierungsID)
+);
+
+CREATE TABLE Rechnungen_Dienstleistungen (
+    RechnungsID INT,
+    DienstleistungsID INT,
+    PRIMARY KEY (RechnungsID, DienstleistungsID),
+    FOREIGN KEY (RechnungsID) REFERENCES Rechnungen(RechnungsID),
+    FOREIGN KEY (DienstleistungsID) REFERENCES Dienstleistungen(DienstleistungsID)
+);
+
+CREATE TABLE Zahlungen (
+    ZahlungsID INT PRIMARY KEY,
+    RechnungsID INT,
+    Zahlungsdatum DATE,
+    Zahlungsart VARCHAR(50),
+    FOREIGN KEY (RechnungsID) REFERENCES Rechnungen(RechnungsID)
+);
+
+CREATE TABLE Mitarbeiter (
+    MitarbeiterID INT PRIMARY KEY,
+    Name VARCHAR(100),
+    Adresse VARCHAR(200),
+    TelNr VARCHAR(20),
+    Email VARCHAR(100),
+    GebDatum DATE
+);
+
+INSERT INTO Gaeste (GastID, Name, Adresse, TelNr, Email, GebDatum) VALUES
+(1, 'Max Schnabel', 'Musterstraße 1, 12345 Musterstadt', '0123456789', 'max.schnabel@domain.com', '1985-06-15'),
+(2, 'Anna Müller', 'Beispielweg 2, 54321 Beispielstadt', '0987654321', 'anna.mueller@domain.com', '1990-04-20'),
+(3, 'Tom Fischer', 'Seestraße 12, 11111 Seedorf', '01712345678', 'tom.fischer@domain.com', '1978-09-12'),
+(4, 'Lena Weiß', 'Hauptstraße 44, 22222 Neustadt', '01513456789', 'lena.weiss@domain.com', '1995-03-25');
+
+INSERT INTO Zimmer (ZimmerID, PreisProNacht, ZimmerTyp, Verfuegbarkeit) VALUES
+(1, 75.50, 'Einzelzimmer', 1),
+(2, 120.00, 'Doppelzimmer', 1),
+(3, 200.00, 'Suite', 0),
+(4, 90.00, 'Einzelzimmer', 1),
+(5, 150.00, 'Doppelzimmer', 0);
+
+INSERT INTO Reservierungen (ReservierungsID, CheckIn, CheckOut, GaesteAnzahl, GastID) VALUES
+(1, '2024-12-15', '2024-12-18', 1, 1),
+(2, '2024-12-22', '2024-12-26', 2, 2),
+(3, '2024-12-20', '2024-12-23', 1, 3),
+(4, '2024-12-28', '2025-01-02', 2, 4);
+
+INSERT INTO Belegungen (BelegungsID, ReservierungsID, ZimmerID) VALUES
+(1, 1, 1),
+(2, 2, 2),
+(3, 3, 4),
+(4, 4, 3);
+
+INSERT INTO Dienstleistungen (DienstleistungsID, Name, Preis) VALUES
+(1, 'Frühstück', 12.50),
+(2, 'Parkplatz', 8.00),
+(3, 'Wellnessbereich', 25.00),
+(4, 'Abendessen', 30.00);
+
+INSERT INTO Rechnungen (RechnungsID, Rechnungsdatum, Gesamtbetrag, ReservierungsID) VALUES
+(1, '2024-12-18', 250.00, 1),
+(2, '2024-12-26', 560.00, 2),
+(3, '2024-12-23', 290.00, 3),
+(4, '2025-01-02', 1200.00, 4);
+
+INSERT INTO Rechnungen_Dienstleistungen (RechnungsID, DienstleistungsID) VALUES
+(1, 1),
+(1, 2),
+(2, 1),
+(2, 3),
+(3, 4),
+(4, 1),
+(4, 3);
+
+INSERT INTO Zahlungen (ZahlungsID, RechnungsID, Zahlungsdatum, Zahlungsart) VALUES
+(1, 1, '2024-12-18', 'Kreditkarte'),
+(2, 2, '2024-12-26', 'PayPal'),
+(3, 3, '2024-12-23', 'Bar'),
+(4, 4, '2025-01-02', 'Lastschrift');
+
+INSERT INTO Mitarbeiter (MitarbeiterID, Name, Adresse, TelNr, Email, GebDatum) VALUES
+(1, 'Johann Schmidt', 'Schmidtstraße 3, 33333 Altstadt', '0123498765', 'j.schmidt@hotel.com', '1980-02-14'),
+(2, 'Lisa Klein', 'Kleinweg 4, 44444 Großstadt', '0987612345', 'l.klein@hotel.com', '1992-11-30'),
+(3, 'Paul Meier', 'Gartenstraße 21, 55555 Dorf', '01678901234', 'p.meier@hotel.com', '1987-06-18'),
+(4, 'Sabine Braun', 'Bergstraße 7, 66666 Alpendorf', '01567890123', 's.braun@hotel.com', '1995-10-01');
