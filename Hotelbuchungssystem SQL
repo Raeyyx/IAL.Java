@@ -1,0 +1,118 @@
+CREATE TABLE Gast (
+    Gast_ID INTEGER PRIMARY KEY AUTOINCREMENT,
+    Name TEXT NOT NULL,
+    Adresse TEXT,
+    Telefonnummer TEXT,
+    EMail TEXT,
+    Geburtsdatum DATE
+);
+
+CREATE TABLE Zimmer (
+    Zimmer_ID INTEGER PRIMARY KEY AUTOINCREMENT,
+    Zimmernummer TEXT NOT NULL,
+    Zimmertyp TEXT,
+    Preis_pro_Nacht REAL NOT NULL,
+    Verfügbarkeit BOOLEAN NOT NULL
+);
+
+CREATE TABLE Reservierung (
+    Reservierungs_ID INTEGER PRIMARY KEY AUTOINCREMENT,
+    Gast_ID INTEGER NOT NULL,
+    Zimmer_ID INTEGER NOT NULL,
+    Check_in_Datum DATE NOT NULL,
+    Check_out_Datum DATE NOT NULL,
+    Anzahl_der_Gäste INTEGER NOT NULL,
+    FOREIGN KEY (Gast_ID) REFERENCES Gast(Gast_ID),
+    FOREIGN KEY (Zimmer_ID) REFERENCES Zimmer(Zimmer_ID)
+);
+
+CREATE TABLE Dienstleistung (
+    Dienstleistungs_ID INTEGER PRIMARY KEY AUTOINCREMENT,
+    Name_der_Dienstleistung TEXT NOT NULL,
+    Preis REAL NOT NULL
+);
+
+CREATE TABLE Reservierung_Dienstleistung (
+    Reservierungs_ID INTEGER NOT NULL,
+    Dienstleistungs_ID INTEGER NOT NULL,
+    PRIMARY KEY (Reservierungs_ID, Dienstleistungs_ID),
+    FOREIGN KEY (Reservierungs_ID) REFERENCES Reservierung(Reservierungs_ID),
+    FOREIGN KEY (Dienstleistungs_ID) REFERENCES Dienstleistung(Dienstleistungs_ID)
+);
+
+CREATE TABLE Rechnung (
+    Rechnungs_ID INTEGER PRIMARY KEY AUTOINCREMENT,
+    Reservierungs_ID INTEGER NOT NULL,
+    Rechnungsdatum DATE NOT NULL,
+    Gesamtbetrag REAL NOT NULL,
+    FOREIGN KEY (Reservierungs_ID) REFERENCES Reservierung(Reservierungs_ID)
+);
+
+CREATE TABLE Zahlung (
+    Zahlungs_ID INTEGER PRIMARY KEY AUTOINCREMENT,
+    Rechnungs_ID INTEGER NOT NULL,
+    Zahlungsdatum DATE NOT NULL,
+    Zahlungsart TEXT NOT NULL,
+    FOREIGN KEY (Rechnungs_ID) REFERENCES Rechnung(Rechnungs_ID)
+);
+
+CREATE TABLE Mitarbeiter (
+    Mitarbeiter_ID INTEGER PRIMARY KEY AUTOINCREMENT,
+    Name TEXT NOT NULL,
+    Position TEXT,
+    Abteilung TEXT,
+    Telefonnummer TEXT,
+    EMail TEXT
+);
+
+INSERT INTO Gast (Name, Adresse, Telefonnummer, EMail, Geburtsdatum)
+VALUES
+    ('Anna Müller', 'Hauptstraße 15, Berlin', '0176-12345678', 'anna.mueller@gmail.com', '1990-05-12'),
+    ('Max Semmel', 'Kaiserallee 22, München', '0151-98765432', 'max.semmel@gmail.com', '1985-08-19'),
+    ('Sophie Schmid', 'Marktplatz 8, Hamburg', '0160-23456789', 'sophie.schmid@hotmail.com', '1995-11-03');
+
+INSERT INTO Zimmer (Zimmernummer, Zimmertyp, Preis_pro_Nacht, Verfügbarkeit)
+VALUES
+    ('101', 'Einzelzimmer', 75.00, 1),
+    ('102', 'Doppelzimmer', 120.00, 1),
+    ('201', 'Suite', 250.00, 1),
+    ('202', 'Einzelzimmer', 80.00, 0);
+
+INSERT INTO Reservierung (Gast_ID, Zimmer_ID, Check_in_Datum, Check_out_Datum, Anzahl_der_Gäste)
+VALUES
+    (1, 2, '2024-12-20', '2024-12-23', 2),
+    (2, 1, '2024-12-24', '2024-12-25', 1),
+    (3, 3, '2024-12-26', '2024-12-30', 2);
+
+INSERT INTO Dienstleistung (Name_der_Dienstleistung, Preis)
+VALUES
+    ('Frühstück', 15.00),
+    ('Parkplatz', 10.00),
+    ('Wellness-Paket', 50.00),
+    ('Zimmer-Service', 20.00);
+
+INSERT INTO Reservierung_Dienstleistung (Reservierungs_ID, Dienstleistungs_ID)
+VALUES
+    (1, 1),
+    (1, 2),
+    (2, 3),
+    (3, 1),
+    (3, 4);
+
+INSERT INTO Rechnung (Reservierungs_ID, Rechnungsdatum, Gesamtbetrag)
+VALUES
+    (1, '2024-12-23', 370.00),
+    (2, '2024-12-25', 90.00),
+    (3, '2024-12-30', 750.00);
+
+INSERT INTO Zahlung (Rechnungs_ID, Zahlungsdatum, Zahlungsart)
+VALUES
+    (1, '2024-12-23', 'Kreditkarte'),
+    (2, '2024-12-25', 'Bar'),
+    (3, '2024-12-30', 'PayPal');
+
+INSERT INTO Mitarbeiter (Name, Position, Abteilung, Telefonnummer, EMail)
+VALUES
+    ('Lukas Weber', 'Rezeptionist', 'Rezeption', '0170-5554321', 'lukas.weber@hotel.com'),
+    ('Emma Schulz', 'Managerin', 'Management', '0157-7654321', 'emma.schulz@hotel.com'),
+    ('Paul Hoffmann', 'Zimmerreinigung', 'Reinigung', '0163-6785432', 'paul.hoffmann@hotel.com');
