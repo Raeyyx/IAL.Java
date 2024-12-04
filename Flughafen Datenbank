@@ -1,0 +1,82 @@
+-- Aufgabe: Flughafen Datenbank
+-- Entwickeln Sie ein relationales Datenbankschema für einen Flughafen.
+-- Das Schema soll die Verwaltung und Organisation von Flügen, Flugzeugen,
+-- Fluggesellschaften, Passagieren und Tickets ermöglichen. 
+-- Ihre Aufgabe besteht darin, die erforderlichen Tabellen zu erstellen
+-- und die Beziehungen zwischen diesen Tabellen festzulegen.
+
+CREATE TABLE Flugzeuge (
+    Flugzeug_ID INTEGER PRIMARY KEY,
+    Flugzeugtyp TEXT NOT NULL,
+    Hersteller TEXT NOT NULL,
+    Sitzplätze INTEGER NOT NULL
+);
+
+CREATE TABLE Fluggesellschaften (
+    Fluggesellschaft_ID INTEGER PRIMARY KEY,
+    Name TEXT NOT NULL
+);
+
+CREATE TABLE Fluege (
+    Flug_ID INTEGER PRIMARY KEY,
+    Flugnummer TEXT NOT NULL,
+    Flugzeug_ID INTEGER NOT NULL,
+    Abflugdatum DATE NOT NULL,
+    Abflugzeit TIME NOT NULL,
+    Ankunftsdatum DATE NOT NULL,
+    Ankunftszeit TIME NOT NULL,
+    FOREIGN KEY (Flugzeug_ID) REFERENCES Flugzeuge(Flugzeug_ID)
+);
+
+CREATE TABLE Passagiere (
+    Passagier_ID INTEGER PRIMARY KEY,
+    Vorname TEXT NOT NULL,
+    Nachname TEXT NOT NULL,
+    Geburtsdatum DATE NOT NULL,
+    Passnummer TEXT UNIQUE NOT NULL
+);
+
+CREATE TABLE Tickets (
+    Ticket_ID INTEGER PRIMARY KEY,
+    Flug_ID INTEGER NOT NULL,
+    Passagier_ID INTEGER NOT NULL,
+    Sitzplatznummer TEXT NOT NULL,
+    Ticketpreis TEXT NOT NULL,
+    FOREIGN KEY (Flug_ID) REFERENCES Fluege(Flug_ID),
+    FOREIGN KEY (Passagier_ID) REFERENCES Passagiere(Passagier_ID)
+);
+
+INSERT INTO Flugzeuge (Flugzeug_ID, Flugzeugtyp, Hersteller, Sitzplätze) VALUES
+(1, 'Boeing 737', 'Boeing', 189),
+(2, 'Airbus A320', 'Airbus', 180),
+(3, 'Embraer E190', 'Embraer', 106),
+(4, 'Boeing 777', 'Boeing', 396),
+(5, 'Bombardier CRJ900', 'Bombardier', 90);
+
+INSERT INTO Fluggesellschaften (Fluggesellschaft_ID, Name) VALUES
+(1, 'Lufthansa'),
+(2, 'Air France'),
+(3, 'Emirates'),
+(4, 'Ryanair'),
+(5, 'American Airlines');
+
+INSERT INTO Fluege (Flug_ID, Flugnummer, Flugzeug_ID, Abflugdatum, Abflugzeit, Ankunftsdatum, Ankunftszeit) VALUES
+(1, 'LH1234', 1, '2024-12-05', '08:30', '2024-12-05', '11:15'),
+(2, 'AF4567', 2, '2024-12-05', '14:45', '2024-12-05', '17:30'),
+(3, 'EK7890', 4, '2024-12-06', '20:00', '2024-12-07', '02:00'),
+(4, 'FR1122', 3, '2024-12-07', '06:00', '2024-12-07', '08:30'),
+(5, 'AA3344', 5, '2024-12-08', '15:00', '2024-12-08', '18:00');
+
+INSERT INTO Passagiere (Passagier_ID, Vorname, Nachname, Geburtsdatum, Passnummer) VALUES
+(1, 'Maria', 'Schmidt', '1990-04-22', 'DE12345678'),
+(2, 'John', 'Doe', '1985-11-15', 'US98765432'),
+(3, 'Ayumi', 'Tanaka', '1993-07-08', 'JP87654321'),
+(4, 'Carlos', 'Gomez', '1988-03-12', 'ES34567891'),
+(5, 'Fatima', 'Khalid', '1995-09-27', 'AE23456789');
+
+INSERT INTO Tickets (Ticket_ID, Flug_ID, Passagier_ID, Sitzplatznummer, Ticketpreis) VALUES
+(1, 1, 1, '12A', '120.50 €'),
+(2, 2, 2, '14C', '180.00 €'),
+(3, 3, 3, '1D', '950.00 €'),
+(4, 4, 4, '23F', '85.00 €'),
+(5, 5, 5, '8B', '210.75 €');
