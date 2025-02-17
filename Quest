@@ -163,7 +163,6 @@ class QuestClassRpg {
     }
 }
 
-// Example usage:
 class Main {
     public static void main(String[] args) {
         List<String> objectives = new ArrayList<>();
