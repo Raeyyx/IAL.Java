@@ -262,7 +262,6 @@ class Enemy {
     }
 }
 
-// Example usage:
 class MainDungeon {
     public static void main(String[] args) {
         List<Enemy> enemies = new ArrayList<>();
