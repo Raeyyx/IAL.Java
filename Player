@@ -103,10 +103,10 @@ class Player {
     public void draw(Graphics g) {
         if (isAlive) {
             g.setColor(Color.BLUE);
-            g.fillRect(x, y, 30, 30); // Simple representation of the player
+            g.fillRect(x, y, 30, 30);
         } else {
             g.setColor(Color.GRAY);
-            g.fillRect(x, y, 30, 30); // Representation of the dead player
+            g.fillRect(x, y, 30, 30);
         }
     }
 }
